@@ -5,6 +5,7 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { ProgressBar } from "./ProgressBar";
 import { Message, Session } from "@/types/supabase";
+import { useToast } from "@/components/ui/use-toast";
 
 export const VividVisionChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -12,6 +13,7 @@ export const VividVisionChat = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     initializeSession();
@@ -80,37 +82,67 @@ export const VividVisionChat = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !session) return;
+    if (!input.trim() || !session || isLoading) return;
 
     setIsLoading(true);
-    const { data: message } = await supabase
-      .from("vivid_vision_messages")
-      .insert({
-        session_id: session.id,
-        content: input,
-        role: "user" as const,
-      })
-      .select()
-      .single();
+    try {
+      // Save user message
+      const { data: userMessage } = await supabase
+        .from("vivid_vision_messages")
+        .insert({
+          session_id: session.id,
+          content: input,
+          role: "user" as const,
+        })
+        .select()
+        .single();
 
-    if (message) {
-      setMessages(prev => [...prev, message as Message]);
-      setInput("");
+      if (userMessage) {
+        setMessages(prev => [...prev, userMessage as Message]);
+        setInput("");
 
-      // Update progress
-      const newProgress = Math.min(session.progress + 10, 100);
-      await supabase
-        .from("vivid_vision_sessions")
-        .update({ progress: newProgress })
-        .eq("id", session.id);
-      
-      setSession(prev => prev ? { ...prev, progress: newProgress } : null);
+        // Get GPT response
+        const response = await fetch('/functions/v1/vivid-vision-chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: messages.concat(userMessage as Message).map(msg => ({
+              role: msg.role,
+              content: msg.content,
+            })),
+          }),
+        });
 
-      // TODO: Add AI response logic here
-      await sendAssistantMessage("Thank you for sharing. Let's explore that further...");
+        if (!response.ok) {
+          throw new Error('Failed to get AI response');
+        }
+
+        const { content } = await response.json();
+
+        // Update progress
+        const newProgress = Math.min(session.progress + 10, 100);
+        await supabase
+          .from("vivid_vision_sessions")
+          .update({ progress: newProgress })
+          .eq("id", session.id);
+        
+        setSession(prev => prev ? { ...prev, progress: newProgress } : null);
+
+        // Save AI response
+        await sendAssistantMessage(content);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
