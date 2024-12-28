@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ParticleBackground } from "./ParticleBackground";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { ProgressBar } from "./ProgressBar";
@@ -115,8 +114,7 @@ export const VividVisionChat = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 text-white overflow-hidden">
-      <ParticleBackground />
+    <div className="fixed inset-0 bg-gradient-to-b from-black to-gray-900 text-white overflow-hidden">
       {session && <ProgressBar progress={session.progress} />}
       <ChatMessages messages={messages} />
       <ChatInput
