@@ -19,14 +19,14 @@ export const ProfileCompletion = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-tl from-[#AA5E3B] via-[#AA5E3B] to-gray-100/20">
       <div className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-4xl font-bold mb-8 text-white">Complete Your Profile</h1>
             <p className="text-white/80 mb-12 text-lg">
               Help us personalize your experience by sharing a bit about yourself.
             </p>
           </div>
-          <div className="w-full max-w-3xl mx-auto">
+          <div className="w-full flex justify-center">
             <ProfileForm />
           </div>
         </div>

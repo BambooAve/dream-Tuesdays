@@ -66,15 +66,15 @@ export const ProfileForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-lg">
-      <div className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-md mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-2 text-white/90">First Name</label>
           <Input
             required
             value={profile.first_name}
             onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-            className="bg-white/10 border-white/20 text-white placeholder-white/50"
+            className="bg-white/10 border-white/20 text-white placeholder-white/50 w-full"
           />
         </div>
         <div>
@@ -83,7 +83,7 @@ export const ProfileForm = () => {
             required
             value={profile.last_name}
             onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-            className="bg-white/10 border-white/20 text-white placeholder-white/50"
+            className="bg-white/10 border-white/20 text-white placeholder-white/50 w-full"
           />
         </div>
       </div>
@@ -95,7 +95,7 @@ export const ProfileForm = () => {
           required
           value={profile.age}
           onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-          className="bg-white/10 border-white/20 text-white placeholder-white/50"
+          className="bg-white/10 border-white/20 text-white placeholder-white/50 w-full"
           min="13"
           max="120"
         />
@@ -107,7 +107,7 @@ export const ProfileForm = () => {
           value={profile.gender}
           onValueChange={(value) => setProfile({ ...profile, gender: value })}
         >
-          <SelectTrigger className="bg-white/10 border-white/20 text-white">
+          <SelectTrigger className="bg-white/10 border-white/20 text-white w-full">
             <SelectValue placeholder="Select your gender" />
           </SelectTrigger>
           <SelectContent>
@@ -125,7 +125,7 @@ export const ProfileForm = () => {
           required
           value={profile.city}
           onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-          className="bg-white/10 border-white/20 text-white placeholder-white/50"
+          className="bg-white/10 border-white/20 text-white placeholder-white/50 w-full"
         />
       </div>
 
@@ -137,7 +137,7 @@ export const ProfileForm = () => {
           value={profile.motivation}
           onValueChange={(value) => setProfile({ ...profile, motivation: value })}
         >
-          <SelectTrigger className="bg-white/10 border-white/20 text-white">
+          <SelectTrigger className="bg-white/10 border-white/20 text-white w-full">
             <SelectValue placeholder="Select your motivation" />
           </SelectTrigger>
           <SelectContent>
