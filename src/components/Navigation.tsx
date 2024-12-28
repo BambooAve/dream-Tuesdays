@@ -6,11 +6,13 @@ import { UserRound } from "lucide-react";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial auth state
@@ -21,12 +23,26 @@ export const Navigation = () => {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      // If user just signed in, check if they have any vivid vision sessions
+      if (currentUser) {
+        const { data: existingSessions } = await supabase
+          .from("vivid_vision_sessions")
+          .select("id")
+          .eq("user_id", currentUser.id);
+
+        // If no sessions exist, this is a new user - redirect to vivid vision
+        if (!existingSessions?.length) {
+          navigate("/vivid-vision");
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   return (
     <>
