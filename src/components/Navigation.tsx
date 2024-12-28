@@ -19,46 +19,56 @@ export const Navigation = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get initial auth state
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    // Get initial session and set up session listener
+    const initializeAuth = async () => {
+      try {
+        // Get current session
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
 
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
+        // Set up listener for auth state changes
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (_event, session) => {
+          const currentUser = session?.user ?? null;
+          setUser(currentUser);
 
-      if (currentUser) {
-        // Check if user has completed their profile
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("first_name")
-          .eq("id", currentUser.id)
-          .single();
+          if (currentUser) {
+            // Check if user has completed their profile
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("first_name")
+              .eq("id", currentUser.id)
+              .single();
 
-        if (!profile?.first_name) {
-          // If profile is not complete, redirect to profile completion
-          navigate("/complete-profile");
-        } else {
-          // Check for vivid vision sessions
-          const { data: existingSessions } = await supabase
-            .from("vivid_vision_sessions")
-            .select("id")
-            .eq("user_id", currentUser.id)
-            .single();
+            if (!profile?.first_name) {
+              // If profile is not complete, redirect to profile completion
+              navigate("/complete-profile");
+            } else {
+              // Check for vivid vision sessions
+              const { data: existingSessions } = await supabase
+                .from("vivid_vision_sessions")
+                .select("id")
+                .eq("user_id", currentUser.id)
+                .single();
 
-          // If no sessions exist, this is a new user - redirect to vivid vision
-          if (!existingSessions) {
-            navigate("/vivid-vision");
+              // If no sessions exist, this is a new user - redirect to vivid vision
+              if (!existingSessions) {
+                navigate("/vivid-vision");
+              }
+            }
           }
-        }
-      }
-    });
+        });
 
-    return () => subscription.unsubscribe();
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+      }
+    };
+
+    initializeAuth();
   }, [navigate]);
 
   const handleLogout = async () => {
