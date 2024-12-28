@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { AuthForm } from "./Auth/AuthForm";
+import { SignUpContent } from "./Auth/SignUpContent";
 import { createUserWithMetadata, checkProfileCompletion } from "@/utils/auth";
 import { z } from "zod";
 
@@ -17,14 +18,16 @@ const authSchema = z.object({
 export const AuthDialog = ({
   isOpen,
   onClose,
+  defaultToSignUp = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  defaultToSignUp?: boolean;
 }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(defaultToSignUp);
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
 
   const onSubmit = async (values: z.infer<typeof authSchema>) => {
@@ -75,38 +78,48 @@ export const AuthDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
-            {isSignUp ? "Create your account" : "Welcome back"}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[872px] p-0 gap-0">
+        <div className="grid sm:grid-cols-2">
+          <div className="p-6">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-center">
+                {isSignUp ? "Create your account" : "Welcome back"}
+              </DialogTitle>
+            </DialogHeader>
 
-        <Tabs value={authMethod} onValueChange={(value) => setAuthMethod(value as "email" | "phone")} className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="phone">Phone</TabsTrigger>
-          </TabsList>
+            <Tabs value={authMethod} onValueChange={(value) => setAuthMethod(value as "email" | "phone")} className="mt-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="email">Email</TabsTrigger>
+                <TabsTrigger value="phone">Phone</TabsTrigger>
+              </TabsList>
 
-          <AuthForm
-            isSignUp={isSignUp}
-            authMethod={authMethod}
-            isLoading={isLoading}
-            onSubmit={onSubmit}
-          />
-        </Tabs>
+              <AuthForm
+                isSignUp={isSignUp}
+                authMethod={authMethod}
+                isLoading={isLoading}
+                onSubmit={onSubmit}
+              />
+            </Tabs>
 
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full mt-4"
-          onClick={() => setIsSignUp(!isSignUp)}
-          disabled={isLoading}
-        >
-          {isSignUp
-            ? "Already have an account? Sign in"
-            : "Don't have an account? Sign up"}
-        </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full mt-4"
+              onClick={() => setIsSignUp(!isSignUp)}
+              disabled={isLoading}
+            >
+              {isSignUp
+                ? "Already have an account? Sign in"
+                : "Don't have an account? Sign up"}
+            </Button>
+          </div>
+
+          {isSignUp && (
+            <div className="border-l">
+              <SignUpContent />
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
