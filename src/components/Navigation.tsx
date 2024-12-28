@@ -69,16 +69,14 @@ export const Navigation = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear user state
-      setUser(null);
-      
       // Show success toast
       toast({
         title: "Signed out successfully",
         description: "You have been logged out.",
       });
       
-      // Redirect to home page
+      // Clear user state and redirect to home page
+      setUser(null);
       navigate("/");
       
     } catch (error: any) {
