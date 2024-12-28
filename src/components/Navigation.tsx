@@ -33,46 +33,33 @@ export const Navigation = () => {
           const currentUser = session?.user ?? null;
           setUser(currentUser);
 
-          // Only handle redirects if we're not already logging out
-          if (!isLoggingOut) {
-            // If user logs out, only redirect to home if we're not already there
-            if (!currentUser && location.pathname !== '/') {
-              navigate('/');
+          // Only proceed with profile checks if we have a logged-in user
+          // and we're not in the process of logging out
+          if (currentUser && !isLoggingOut) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("first_name")
+              .eq("id", currentUser.id)
+              .maybeSingle();
+
+            // Redirect to profile completion if profile is incomplete
+            if (!profile?.first_name && 
+                location.pathname !== '/complete-profile') {
+              navigate("/complete-profile");
               return;
             }
 
-            // Only proceed with profile checks if we have a logged-in user
-            if (currentUser) {
-              const { data: profile } = await supabase
-                .from("profiles")
-                .select("first_name")
-                .eq("id", currentUser.id)
+            // Check for vivid vision sessions if profile is complete
+            if (profile?.first_name && 
+                location.pathname !== '/vivid-vision') {
+              const { data: existingSessions } = await supabase
+                .from("vivid_vision_sessions")
+                .select("id")
+                .eq("user_id", currentUser.id)
                 .maybeSingle();
 
-              // Only redirect to profile completion if:
-              // 1. Profile is not complete (no first_name)
-              // 2. We're not already on the complete-profile page
-              // 3. We're not in the middle of logging out
-              if (!profile?.first_name && 
-                  location.pathname !== '/complete-profile') {
-                navigate("/complete-profile");
-                return;
-              }
-
-              // Only check for vivid vision sessions if:
-              // 1. Profile is complete
-              // 2. We're not already on the vivid-vision page
-              if (profile?.first_name && 
-                  location.pathname !== '/vivid-vision') {
-                const { data: existingSessions } = await supabase
-                  .from("vivid_vision_sessions")
-                  .select("id")
-                  .eq("user_id", currentUser.id)
-                  .maybeSingle();
-
-                if (!existingSessions) {
-                  navigate("/vivid-vision");
-                }
+              if (!existingSessions) {
+                navigate("/vivid-vision");
               }
             }
           }
