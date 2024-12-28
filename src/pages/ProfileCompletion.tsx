@@ -32,6 +32,9 @@ export const ProfileCompletion = () => {
             <ProfileForm />
           </div>
         </div>
+        <div className="md:hidden mt-16">
+          <GrowthAnimation />
+        </div>
       </div>
     </div>
   );
