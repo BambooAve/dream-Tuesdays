@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { MenuOctahedron } from "./MenuOctahedron";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,9 +99,11 @@ export const Navigation = () => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <button 
-              className="w-10 h-10 rounded-full bg-white flex items-center justify-center"
+              className="rounded-full bg-transparent flex items-center justify-center hover:opacity-80 transition-opacity"
               onClick={() => setIsMenuOpen(true)}
-            />
+            >
+              <MenuOctahedron />
+            </button>
             <span className="text-white font-medium">MENU</span>
           </div>
           {user ? (
