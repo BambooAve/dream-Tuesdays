@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileForm } from "@/components/ProfileCompletion/ProfileForm";
-import { GrowthAnimation } from "@/components/ProfileCompletion/GrowthAnimation";
 
 export const ProfileCompletion = () => {
   const navigate = useNavigate();
@@ -30,9 +29,6 @@ export const ProfileCompletion = () => {
           <div className="w-full max-w-3xl mx-auto">
             <ProfileForm />
           </div>
-        </div>
-        <div className="mt-20 flex justify-center">
-          <GrowthAnimation />
         </div>
       </div>
     </div>
