@@ -80,9 +80,9 @@ export const AuthDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[872px] p-0 gap-0">
         <div className="grid sm:grid-cols-2">
-          <div className="p-6">
+          <div className="p-6 bg-gradient-to-tl from-brand-orange via-brand-orange to-gray-100/20">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-center">
+              <DialogTitle className="text-2xl font-bold text-center text-white">
                 {isSignUp ? "Create your account" : "Welcome back"}
               </DialogTitle>
             </DialogHeader>
@@ -104,7 +104,7 @@ export const AuthDialog = ({
             <Button
               type="button"
               variant="ghost"
-              className="w-full mt-4"
+              className="w-full mt-4 text-white hover:text-white/90 hover:bg-white/10"
               onClick={() => setIsSignUp(!isSignUp)}
               disabled={isLoading}
             >
