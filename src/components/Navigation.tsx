@@ -32,10 +32,11 @@ export const Navigation = () => {
         const { data: existingSessions } = await supabase
           .from("vivid_vision_sessions")
           .select("id")
-          .eq("user_id", currentUser.id);
+          .eq("user_id", currentUser.id)
+          .single();
 
         // If no sessions exist, this is a new user - redirect to vivid vision
-        if (!existingSessions?.length) {
+        if (!existingSessions) {
           navigate("/vivid-vision");
         }
       }
