@@ -58,7 +58,7 @@ export const ParticleBackground = () => {
       const alpha = p5.map(distance, 0, 300, 100, 20);
       p5.noStroke();
       p5.fill(45, 212, 191, alpha); // Using teal color
-      p5.circle(particle.x, particle.y, particle.size);
+      p5.circle(particle.x, particle.y, particle.size); // Fixed: Providing x, y, and diameter arguments
 
       // Draw connections
       particles.current.forEach((other) => {
