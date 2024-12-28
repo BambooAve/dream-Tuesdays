@@ -134,6 +134,14 @@ export const VividVisionChat = () => {
 
         // Save AI response
         await sendAssistantMessage(data.content);
+
+        // If this is the final message (progress is 100%), mark the session as completed
+        if (newProgress === 100) {
+          await supabase
+            .from("vivid_vision_sessions")
+            .update({ completed_at: new Date().toISOString() })
+            .eq("id", session.id);
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -146,6 +154,11 @@ export const VividVisionChat = () => {
       setIsLoading(false);
     }
   };
+
+  // Check if the chat is complete (last message is from assistant and contains the final message)
+  const isChatComplete = messages.length > 0 && 
+    messages[messages.length - 1].role === 'assistant' && 
+    messages[messages.length - 1].content.includes("I'm now working on creating your final Vivid Vision goals");
 
   if (!hasStarted) {
     return (
@@ -178,12 +191,24 @@ export const VividVisionChat = () => {
     <div className="fixed inset-0 bg-gradient-to-b from-black to-gray-900 text-white overflow-hidden">
       {session && <ProgressBar progress={session.progress} />}
       <ChatMessages messages={messages} />
-      <ChatInput
-        input={input}
-        setInput={setInput}
-        handleSendMessage={handleSendMessage}
-        isLoading={isLoading}
-      />
+      {isChatComplete ? (
+        <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-center items-center bg-gradient-to-t from-black to-transparent">
+          <Button
+            onClick={() => navigate('/account')}
+            size="lg"
+            className="bg-white text-black hover:bg-white/90 px-8 py-6 text-lg rounded-full"
+          >
+            View Your Vision Board
+          </Button>
+        </div>
+      ) : (
+        <ChatInput
+          input={input}
+          setInput={setInput}
+          handleSendMessage={handleSendMessage}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 };
