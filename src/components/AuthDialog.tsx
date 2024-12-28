@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AuthDialogProps {
@@ -43,7 +43,7 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         
         toast({
           title: "Success!",
-          description: "Account created successfully! You can now sign in.",
+          description: "Please check your email for confirmation instructions.",
         });
         
         setMode("sign-in");
@@ -58,7 +58,18 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
               password: formData.password,
             });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message === "Email not confirmed") {
+            toast({
+              variant: "destructive",
+              title: "Email Not Confirmed",
+              description: "Please check your email and click the confirmation link before signing in.",
+            });
+          } else {
+            throw error;
+          }
+          return;
+        }
         onClose();
       }
     } catch (error: any) {
