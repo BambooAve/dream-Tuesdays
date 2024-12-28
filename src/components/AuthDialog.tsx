@@ -45,15 +45,15 @@ export const AuthDialog = ({
         const emailAuthData = {
           email: identifier,
           password,
-          ...(isSignUp && {
-            options: {
-              emailRedirectTo: window.location.origin,
-            },
-          }),
         };
         
         const { error } = isSignUp
-          ? await supabase.auth.signUp(emailAuthData)
+          ? await supabase.auth.signUp({
+              ...emailAuthData,
+              options: {
+                emailRedirectTo: window.location.origin,
+              },
+            })
           : await supabase.auth.signInWithPassword(emailAuthData);
           
         if (error) throw error;
