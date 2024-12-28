@@ -6,7 +6,7 @@ import { UserRound, LogOut } from "lucide-react";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 export const Navigation = () => {
@@ -96,13 +96,15 @@ export const Navigation = () => {
           />
           {user ? (
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="text-white hover:bg-white/10 rounded-full"
-              >
-                <UserRound className="h-5 w-5" />
-              </Button>
+              <Link to="/profile">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-white hover:bg-white/10 rounded-full"
+                >
+                  <UserRound className="h-5 w-5" />
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
