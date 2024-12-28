@@ -31,7 +31,7 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
             },
           }}
           theme="light"
-          providers={["phone"]}
+          providers={["phone" as const]}
           view="sign_in"
           showLinks={true}
           redirectTo={window.location.origin}
