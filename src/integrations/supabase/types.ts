@@ -30,6 +30,33 @@ export type Database = {
         }
         Relationships: []
       }
+      system_prompts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       vivid_vision_messages: {
         Row: {
           content: string
