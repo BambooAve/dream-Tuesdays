@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FullscreenMenuProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface FullscreenMenuProps {
 
 const menuItems = [
   { label: "Home", href: "/" },
+  { label: "Vivid Vision Chat", href: "/vivid-vision" },
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Contact", href: "/contact" },
@@ -42,13 +44,15 @@ export const FullscreenMenu = ({ isOpen, onClose }: FullscreenMenuProps) => {
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <Button
-                  variant="ghost"
-                  className="text-white text-2xl mb-8 hover:text-gray-300 transition-colors"
-                  onClick={onClose}
-                >
-                  {item.label}
-                </Button>
+                <Link to={item.href}>
+                  <Button
+                    variant="ghost"
+                    className="text-white text-2xl mb-8 hover:text-gray-300 transition-colors"
+                    onClick={onClose}
+                  >
+                    {item.label}
+                  </Button>
+                </Link>
               </motion.div>
             ))}
           </nav>
