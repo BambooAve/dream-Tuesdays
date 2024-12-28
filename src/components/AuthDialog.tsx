@@ -1,110 +1,50 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface AuthDialogProps {
+export const AuthDialog = ({
+  isOpen,
+  onClose,
+}: {
   isOpen: boolean;
   onClose: () => void;
-}
-
-export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [authType, setAuthType] = useState<"email" | "phone">("email");
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+}) => {
   const { toast } = useToast();
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
     password: "",
   });
 
-  useEffect(() => {
-    // Handle the redirect from email confirmation
-    const handleEmailConfirmation = async () => {
-      const hash = window.location.hash;
-      if (hash && hash.includes('access_token')) {
-        try {
-          const { data, error } = await supabase.auth.getSession();
-          if (error) throw error;
-          if (data?.session) {
-            toast({
-              title: "Success!",
-              description: "Email confirmed successfully. You are now signed in.",
-            });
-            // Remove the hash from the URL
-            window.location.hash = '';
-            onClose();
-          }
-        } catch (error: any) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          });
-        }
-      }
-    };
-
-    handleEmailConfirmation();
-  }, [toast, onClose]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (mode === "sign-up") {
-        const { error } = authType === "email" 
-          ? await supabase.auth.signUp({
-              email: formData.email,
-              password: formData.password,
-              options: {
-                emailRedirectTo: window.location.origin,
-              },
-            })
-          : await supabase.auth.signUp({
-              phone: formData.phone,
-              password: formData.password,
-            });
+      const { error } = authMethod === "email"
+        ? await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          })
+        : await supabase.auth.signInWithPassword({
+            phone: formData.phone,
+            password: formData.password,
+          });
 
-        if (error) throw error;
-        
-        toast({
-          title: "Success!",
-          description: "Please check your email for confirmation instructions.",
-        });
-        
-        setMode("sign-in");
-      } else {
-        const { error } = authType === "email"
-          ? await supabase.auth.signInWithPassword({
-              email: formData.email,
-              password: formData.password,
-            })
-          : await supabase.auth.signInWithPassword({
-              phone: formData.phone,
-              password: formData.password,
-            });
+      if (error) throw error;
 
-        if (error) {
-          if (error.message === "Email not confirmed") {
-            toast({
-              variant: "destructive",
-              title: "Email Not Confirmed",
-              description: "Please check your email and click the confirmation link before signing in.",
-            });
-          } else {
-            throw error;
-          }
-          return;
-        }
-        onClose();
-      }
+      toast({
+        title: "Success!",
+        description: "You are now signed in.",
+      });
+      onClose();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -118,13 +58,13 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl font-semibold">
-            {mode === "sign-in" ? "Welcome Back" : "Create an Account"}
+          <DialogTitle>
+            {isSignUp ? "Create an account" : "Sign in to your account"}
           </DialogTitle>
         </DialogHeader>
-        <Tabs value={authType} onValueChange={(value) => setAuthType(value as "email" | "phone")}>
+        <Tabs value={authMethod} onValueChange={(value) => setAuthMethod(value as "email" | "phone")}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="email">Email</TabsTrigger>
             <TabsTrigger value="phone">Phone</TabsTrigger>
@@ -132,47 +72,48 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <TabsContent value="email">
               <Input
-                type="email"
                 placeholder="Email"
+                type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required={authType === "email"}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </TabsContent>
             <TabsContent value="phone">
               <Input
+                placeholder="Phone"
                 type="tel"
-                placeholder="Phone (e.g., +12345678900)"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required={authType === "phone"}
-                pattern="^\+[1-9]\d{1,14}$"
-                title="Phone number must be in E.164 format (e.g., +12345678900)"
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
             </TabsContent>
             <Input
-              type="password"
               placeholder="Password"
+              type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Loading..." : mode === "sign-in" ? "Sign In" : "Sign Up"}
-            </Button>
+            <div className="flex flex-col gap-4">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Loading..." : isSignUp ? "Sign up" : "Sign in"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp
+                  ? "Already have an account? Sign in"
+                  : "Don't have an account? Sign up"}
+              </Button>
+            </div>
           </form>
         </Tabs>
-        <div className="text-center text-sm">
-          <button
-            type="button"
-            onClick={() => setMode(mode === "sign-in" ? "sign-up" : "sign-in")}
-            className="text-blue-600 hover:underline"
-          >
-            {mode === "sign-in" 
-              ? "Don't have an account? Sign up" 
-              : "Already have an account? Sign in"}
-          </button>
-        </div>
       </DialogContent>
     </Dialog>
   );
