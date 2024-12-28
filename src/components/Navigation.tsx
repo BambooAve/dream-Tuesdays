@@ -34,7 +34,6 @@ export const Navigation = () => {
           setUser(currentUser);
 
           // Only proceed with profile checks if we have a logged-in user
-          // and we're not in the process of logging out
           if (currentUser && !isLoggingOut) {
             const { data: profile } = await supabase
               .from("profiles")
@@ -42,16 +41,14 @@ export const Navigation = () => {
               .eq("id", currentUser.id)
               .maybeSingle();
 
-            // Redirect to profile completion if profile is incomplete
-            if (!profile?.first_name && 
-                location.pathname !== '/complete-profile') {
+            // Only redirect to profile completion if user is logged in and profile is incomplete
+            if (!profile?.first_name && location.pathname !== '/complete-profile') {
               navigate("/complete-profile");
               return;
             }
 
-            // Check for vivid vision sessions if profile is complete
-            if (profile?.first_name && 
-                location.pathname !== '/vivid-vision') {
+            // Only check for vivid vision sessions if profile is complete
+            if (profile?.first_name && location.pathname !== '/vivid-vision') {
               const { data: existingSessions } = await supabase
                 .from("vivid_vision_sessions")
                 .select("id")
