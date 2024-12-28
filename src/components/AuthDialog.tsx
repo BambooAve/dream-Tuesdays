@@ -37,35 +37,37 @@ export const AuthDialog = ({
   });
 
   const onSubmit = async (values: z.infer<typeof authSchema>) => {
+    if (isLoading) return; // Prevent multiple submissions
+    
     setIsLoading(true);
     try {
       const { identifier, password } = values;
       
       if (authMethod === "email") {
-        const emailAuthData = {
-          email: identifier,
-          password,
-        };
-        
         const { error } = isSignUp
           ? await supabase.auth.signUp({
-              ...emailAuthData,
+              email: identifier,
+              password,
               options: {
                 emailRedirectTo: window.location.origin,
               },
             })
-          : await supabase.auth.signInWithPassword(emailAuthData);
+          : await supabase.auth.signInWithPassword({
+              email: identifier,
+              password,
+            });
           
         if (error) throw error;
       } else {
-        const phoneAuthData = {
-          phone: identifier,
-          password,
-        };
-        
         const { error } = isSignUp
-          ? await supabase.auth.signUp(phoneAuthData)
-          : await supabase.auth.signInWithPassword(phoneAuthData);
+          ? await supabase.auth.signUp({
+              phone: identifier,
+              password,
+            })
+          : await supabase.auth.signInWithPassword({
+              phone: identifier,
+              password,
+            });
           
         if (error) throw error;
       }
@@ -76,20 +78,31 @@ export const AuthDialog = ({
           ? "Please check your email for verification." 
           : "You've successfully signed in.",
       });
+      
+      // Reset form and close dialog only on success
+      form.reset();
       onClose();
     } catch (error: any) {
+      console.error("Auth error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during authentication",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Reset form when dialog closes
+  const handleClose = () => {
+    form.reset();
+    setIsLoading(false);
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
@@ -115,6 +128,7 @@ export const AuthDialog = ({
                       <Input
                         type={authMethod === "email" ? "email" : "tel"}
                         placeholder={authMethod === "email" ? "Enter your email" : "Enter your phone number"}
+                        disabled={isLoading}
                         {...field}
                       />
                     </FormControl>
@@ -133,6 +147,7 @@ export const AuthDialog = ({
                       <Input
                         type="password"
                         placeholder="Enter your password"
+                        disabled={isLoading}
                         {...field}
                       />
                     </FormControl>
@@ -156,7 +171,11 @@ export const AuthDialog = ({
                 type="button"
                 variant="ghost"
                 className="w-full"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  form.reset();
+                }}
+                disabled={isLoading}
               >
                 {isSignUp
                   ? "Already have an account? Sign in"
