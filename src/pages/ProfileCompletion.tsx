@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileForm } from "@/components/ProfileCompletion/ProfileForm";
+import { FloatingOctahedron } from "@/components/ProfileCompletion/FloatingOctahedron";
 
 export const ProfileCompletion = () => {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ export const ProfileCompletion = () => {
           </div>
           <div className="w-full flex justify-center">
             <ProfileForm />
+          </div>
+          <div className="mt-20 w-full max-w-md mx-auto">
+            <FloatingOctahedron />
           </div>
         </div>
       </div>
