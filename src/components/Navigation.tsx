@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { FullscreenMenu } from "./FullscreenMenu";
 import { AuthDialog } from "./AuthDialog";
-import { UserRound, LogOut, LogIn } from "lucide-react";
+import { UserRound, LogOut, LogIn, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -13,6 +13,7 @@ export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -60,6 +61,9 @@ export const Navigation = () => {
   }, [navigate]);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+    
+    setIsLoggingOut(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -78,11 +82,14 @@ export const Navigation = () => {
       // Redirect to home page
       navigate("/");
     } catch (error: any) {
+      console.error("Logout error:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message || "Failed to sign out. Please try again.",
       });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -109,9 +116,14 @@ export const Navigation = () => {
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
+                disabled={isLoggingOut}
                 className="text-white hover:bg-white/10 rounded-full"
               >
-                <LogOut className="h-5 w-5" />
+                {isLoggingOut ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <LogOut className="h-5 w-5" />
+                )}
               </Button>
             </div>
           ) : (
