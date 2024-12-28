@@ -192,11 +192,12 @@ export const Profile = () => {
 
           {/* Goals Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <CategoryCard
                 key={category.id}
                 category={category}
                 goals={getCategoryGoals(category.id)}
+                isFirst={index === 0}
               />
             ))}
           </div>
