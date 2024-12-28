@@ -32,10 +32,10 @@ export const VividVisionChat = () => {
       .select()
       .is("completed_at", null)
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (existingSession) {
-      setSession(existingSession);
+      setSession(existingSession as Session);
       // Load existing messages
       const { data: existingMessages } = await supabase
         .from("vivid_vision_messages")
@@ -44,7 +44,7 @@ export const VividVisionChat = () => {
         .order("created_at", { ascending: true });
       
       if (existingMessages) {
-        setMessages(existingMessages);
+        setMessages(existingMessages as Message[]);
       }
     } else {
       // Create new session
@@ -55,7 +55,7 @@ export const VividVisionChat = () => {
         .single();
 
       if (newSession) {
-        setSession(newSession);
+        setSession(newSession as Session);
         // Send initial message
         sendAssistantMessage("Welcome to your Vivid Vision journey! Let's start crafting your future vision. First, tell me what brings you here today?");
       }
@@ -70,13 +70,13 @@ export const VividVisionChat = () => {
       .insert({
         session_id: session.id,
         content,
-        role: "assistant",
+        role: "assistant" as const,
       })
       .select()
       .single();
 
     if (message) {
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => [...prev, message as Message]);
     }
   };
 
@@ -89,13 +89,13 @@ export const VividVisionChat = () => {
       .insert({
         session_id: session.id,
         content: input,
-        role: "user",
+        role: "user" as const,
       })
       .select()
       .single();
 
     if (message) {
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => [...prev, message as Message]);
       setInput("");
 
       // Update progress
