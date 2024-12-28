@@ -6,7 +6,7 @@ import { UserRound, LogOut, LogIn, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { MenuOctahedron } from "./MenuOctahedron";
 
@@ -16,6 +16,7 @@ export const Navigation = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,19 +42,20 @@ export const Navigation = () => {
               .eq("id", currentUser.id)
               .maybeSingle();
 
-            if (!profile?.first_name) {
-              // If profile is not complete, redirect to profile completion
+            // Only redirect to profile completion if we're not already there
+            if (!profile?.first_name && location.pathname !== '/complete-profile') {
               navigate("/complete-profile");
-            } else {
-              // Check for vivid vision sessions
+            } else if (profile?.first_name) {
+              // Check for vivid vision sessions only if profile is complete
               const { data: existingSessions } = await supabase
                 .from("vivid_vision_sessions")
                 .select("id")
                 .eq("user_id", currentUser.id)
                 .maybeSingle();
 
-              // If no sessions exist, this is a new user - redirect to vivid vision
-              if (!existingSessions) {
+              // If no sessions exist and we're not already on the vivid vision page,
+              // this is a new user - redirect to vivid vision
+              if (!existingSessions && location.pathname !== '/vivid-vision') {
                 navigate("/vivid-vision");
               }
             }
@@ -69,7 +71,7 @@ export const Navigation = () => {
     };
 
     initializeAuth();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
