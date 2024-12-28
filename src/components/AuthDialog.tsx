@@ -40,27 +40,36 @@ export const AuthDialog = ({
     setIsLoading(true);
     try {
       const { identifier, password } = values;
-      const authData = authMethod === "email" 
-        ? { 
-            email: identifier, 
-            password,
-            options: {
-              redirectTo: window.location.origin,
-            }
-          }
-        : { 
-            phone: identifier, 
-            password,
-            options: {
-              redirectTo: window.location.origin,
-            }
-          };
-
-      const { error } = isSignUp
-        ? await supabase.auth.signUp(authData)
-        : await supabase.auth.signInWithPassword(authData);
-
-      if (error) throw error;
+      
+      if (authMethod === "email") {
+        const emailAuthData = {
+          email: identifier,
+          password,
+          options: {
+            redirectTo: window.location.origin,
+          },
+        };
+        
+        const { error } = isSignUp
+          ? await supabase.auth.signUp(emailAuthData)
+          : await supabase.auth.signInWithPassword(emailAuthData);
+          
+        if (error) throw error;
+      } else {
+        const phoneAuthData = {
+          phone: identifier,
+          password,
+          options: {
+            redirectTo: window.location.origin,
+          },
+        };
+        
+        const { error } = isSignUp
+          ? await supabase.auth.signUp(phoneAuthData)
+          : await supabase.auth.signInWithPassword(phoneAuthData);
+          
+        if (error) throw error;
+      }
 
       toast({
         title: isSignUp ? "Account created!" : "Welcome back!",
