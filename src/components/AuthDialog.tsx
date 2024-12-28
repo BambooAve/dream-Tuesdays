@@ -37,10 +37,8 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
 
     // Handle specific error cases
     if (error.message.includes("Invalid login credentials")) {
-      if (mode === "sign-in") {
-        title = "Invalid Credentials";
-        description = "Please check your credentials or sign up if you don't have an account.";
-      }
+      title = "Account Not Found";
+      description = "We couldn't find an account with these credentials. Please sign up if you don't have an account yet.";
     } else if (error.message.includes("Email not confirmed")) {
       title = "Email Not Verified";
       description = "Please check your email for the verification link.";
