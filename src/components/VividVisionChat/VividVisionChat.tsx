@@ -5,9 +5,9 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { ProgressBar } from "./ProgressBar";
 import { ChatCompletion } from "./ChatCompletion";
+import { WelcomeScreen } from "./WelcomeScreen";
 import { Message, Session } from "@/types/supabase";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
 
 export const VividVisionChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -50,7 +50,7 @@ export const VividVisionChat = () => {
       
       if (existingMessages && existingMessages.length > 0) {
         setMessages(existingMessages as Message[]);
-        setHasStarted(true);
+        // Don't automatically set hasStarted to true here anymore
       }
     } else {
       // Create new session
@@ -161,30 +161,7 @@ export const VividVisionChat = () => {
     messages[messages.length - 1].content.includes("I'm now working on creating your final Vivid Vision goals");
 
   if (!hasStarted) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-b from-black to-gray-900 text-white flex items-center justify-center">
-        <div className="max-w-2xl mx-auto px-4 text-center space-y-8">
-          <h1 className="text-4xl font-bold leading-tight">
-            Imagine writing down exactly what your dream life looks like 365 days from now—and then actually living it.
-          </h1>
-          <p className="text-xl text-gray-300">
-            That's what we're going to do today.
-          </p>
-          <div className="space-y-4">
-            <p className="text-gray-400">
-              This is your time to reflect, dream, and plan. The first step toward transformation is setting your intentions.
-            </p>
-            <Button 
-              onClick={handleStartChat}
-              size="lg"
-              className="bg-white text-black hover:bg-white/90 px-8 py-6 text-lg rounded-full"
-            >
-              Start Chat
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <WelcomeScreen onStart={handleStartChat} />;
   }
 
   return (
