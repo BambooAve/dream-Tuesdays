@@ -37,19 +37,22 @@ export const AuthDialog = ({
   });
 
   const onSubmit = async (values: z.infer<typeof authSchema>) => {
-    if (isLoading) return; // Prevent multiple submissions
+    if (isLoading) return;
     
     setIsLoading(true);
     try {
       const { identifier, password } = values;
       
       if (authMethod === "email") {
-        const { error } = isSignUp
+        const { data, error } = isSignUp
           ? await supabase.auth.signUp({
               email: identifier,
               password,
               options: {
                 emailRedirectTo: window.location.origin,
+                data: {
+                  email: identifier, // Include email in metadata for profile creation
+                },
               },
             })
           : await supabase.auth.signInWithPassword({
@@ -58,11 +61,30 @@ export const AuthDialog = ({
             });
           
         if (error) throw error;
+
+        // Check if the profile was created successfully for new users
+        if (isSignUp && data.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .select()
+            .eq('id', data.user.id)
+            .maybeSingle();
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            throw new Error('Failed to create user profile. Please try again.');
+          }
+        }
       } else {
         const { error } = isSignUp
           ? await supabase.auth.signUp({
               phone: identifier,
               password,
+              options: {
+                data: {
+                  phone: identifier, // Include phone in metadata for profile creation
+                },
+              },
             })
           : await supabase.auth.signInWithPassword({
               phone: identifier,
@@ -79,7 +101,6 @@ export const AuthDialog = ({
           : "You've successfully signed in.",
       });
       
-      // Reset form and close dialog only on success
       form.reset();
       onClose();
     } catch (error: any) {
@@ -94,7 +115,6 @@ export const AuthDialog = ({
     }
   };
 
-  // Reset form when dialog closes
   const handleClose = () => {
     form.reset();
     setIsLoading(false);
