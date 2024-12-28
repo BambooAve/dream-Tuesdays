@@ -26,14 +26,14 @@ export const ProfileCompletion = () => {
           </div>
           <div className="w-full md:w-1/2 max-w-2xl mx-auto">
             <h1 className="text-4xl font-bold mb-8 text-white">Complete Your Profile</h1>
+            <div className="md:hidden mb-12">
+              <GrowthAnimation />
+            </div>
             <p className="text-white/80 mb-12 text-lg">
               Help us personalize your experience by sharing a bit about yourself.
             </p>
             <ProfileForm />
           </div>
-        </div>
-        <div className="md:hidden mt-16">
-          <GrowthAnimation />
         </div>
       </div>
     </div>
