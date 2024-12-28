@@ -26,22 +26,28 @@ export const createUserWithMetadata = async (
   isEmail: boolean
 ) => {
   try {
-    const { data, error } = await supabase.auth.signUp({
-      ...(isEmail ? { email: identifier } : { phone: identifier }),
+    // First, sign up the user
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      ...(isEmail 
+        ? { email: identifier } 
+        : { phone: identifier }
+      ),
       password,
       options: {
-        emailRedirectTo: window.location.origin,
-        data: isEmail ? { email: identifier } : { phone: identifier },
-      },
+        data: {
+          ...(isEmail ? { email: identifier } : { phone: identifier })
+        }
+      }
     });
 
-    if (error) throw error;
-
-    if (data?.user) {
-      return { user: data.user };
+    if (signUpError) throw signUpError;
+    
+    if (!signUpData.user) {
+      throw new Error("No user returned from sign up");
     }
 
-    throw new Error("Failed to create user");
+    // Return the user data
+    return { user: signUpData.user };
   } catch (error) {
     console.error("Error in createUserWithMetadata:", error);
     throw error;
