@@ -23,11 +23,34 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
     password: "",
   });
 
+  const validatePhoneNumber = (phone: string) => {
+    // Basic E.164 format validation
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(phone)) {
+      throw new Error("Phone number must be in E.164 format (e.g., +12345678900)");
+    }
+    return phone;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      if (authType === "phone") {
+        try {
+          validatePhoneNumber(formData.phone);
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Invalid Phone Number",
+            description: error.message,
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       if (mode === "sign-up") {
         const { error } = authType === "email" 
           ? await supabase.auth.signUp({
@@ -95,11 +118,16 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
             <TabsContent value="phone">
               <Input
                 type="tel"
-                placeholder="Phone (e.g., +1234567890)"
+                placeholder="Phone (e.g., +12345678900)"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required={authType === "phone"}
+                pattern="^\+[1-9]\d{1,14}$"
+                title="Phone number must be in E.164 format (e.g., +12345678900)"
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Format: +[country code][number] (e.g., +12345678900)
+              </p>
             </TabsContent>
             <Input
               type="password"
