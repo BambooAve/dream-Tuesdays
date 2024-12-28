@@ -39,7 +39,7 @@ export const VividVisionChat = () => {
 
     if (existingSession) {
       setSession(existingSession as Session);
-      setHasStarted(true);
+      
       // Load existing messages
       const { data: existingMessages } = await supabase
         .from("vivid_vision_messages")
@@ -47,8 +47,9 @@ export const VividVisionChat = () => {
         .eq("session_id", existingSession.id)
         .order("created_at", { ascending: true });
       
-      if (existingMessages) {
+      if (existingMessages && existingMessages.length > 0) {
         setMessages(existingMessages as Message[]);
+        setHasStarted(true);
       }
     } else {
       // Create new session
