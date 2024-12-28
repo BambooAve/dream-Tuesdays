@@ -7,7 +7,7 @@ import { ProgressBar } from "./ProgressBar";
 import { ChatCompletion } from "./ChatCompletion";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { Message, Session } from "@/types/supabase";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const VividVisionChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -50,7 +50,6 @@ export const VividVisionChat = () => {
       
       if (existingMessages && existingMessages.length > 0) {
         setMessages(existingMessages as Message[]);
-        // Don't automatically set hasStarted to true here anymore
       }
     } else {
       // Create new session
@@ -66,9 +65,31 @@ export const VividVisionChat = () => {
     }
   };
 
-  const handleStartChat = async () => {
+  const handleStartChat = async (introMessage: string) => {
     setHasStarted(true);
-    await sendAssistantMessage("Welcome to your Vivid Vision journey! Let's start crafting your future vision. First, tell me what brings you here today?");
+    
+    // First send the user's introduction
+    if (session) {
+      const { data: userMessage } = await supabase
+        .from("vivid_vision_messages")
+        .insert({
+          session_id: session.id,
+          content: introMessage,
+          role: "user" as const,
+        })
+        .select()
+        .single();
+
+      if (userMessage) {
+        setMessages(prev => [...prev, userMessage as Message]);
+        
+        // Then send the assistant's response
+        await sendAssistantMessage(
+          "Thank you for sharing! I'm excited to help you create your vivid vision. " +
+          "Let's start crafting your future vision. What area of your life would you like to focus on first?"
+        );
+      }
+    }
   };
 
   const sendAssistantMessage = async (content: string) => {
