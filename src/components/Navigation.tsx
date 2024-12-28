@@ -15,6 +15,7 @@ export const Navigation = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -24,12 +25,19 @@ export const Navigation = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
+        setIsLoading(false);
 
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event, session) => {
           const currentUser = session?.user ?? null;
           setUser(currentUser);
+
+          // If user logs out, redirect to home
+          if (!currentUser && location.pathname !== '/') {
+            navigate('/');
+            return;
+          }
 
           // Only proceed with checks if we have a logged-in user
           if (currentUser) {
@@ -76,6 +84,7 @@ export const Navigation = () => {
         };
       } catch (error) {
         console.error("Error initializing auth:", error);
+        setIsLoading(false);
       }
     };
 
@@ -109,6 +118,11 @@ export const Navigation = () => {
       setIsLoggingOut(false);
     }
   };
+
+  // Don't render navigation until auth state is determined
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <>
