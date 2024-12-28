@@ -39,6 +39,9 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
       title = "Phone Authentication Unavailable";
       description = "Phone authentication is currently disabled. Please use email authentication instead.";
       setAuthType("email");
+    } else if (error.message.includes("email_provider_disabled")) {
+      title = "Email Authentication Unavailable";
+      description = "Email authentication is currently disabled. Please try again later or contact support.";
     } else if (error.message.includes("Invalid login credentials")) {
       if (mode === "sign-in") {
         title = "Account Not Found";
