@@ -48,7 +48,7 @@ export const Navigation = () => {
                 location.pathname !== '/complete-profile' && 
                 !isLoggingOut) {
               navigate("/complete-profile");
-              return; // Exit early to prevent checking vivid vision
+              return;
             }
 
             // Only check for vivid vision sessions if:

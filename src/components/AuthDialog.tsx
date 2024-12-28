@@ -88,9 +88,19 @@ export const AuthDialog = ({
             </DialogHeader>
 
             <Tabs value={authMethod} onValueChange={(value) => setAuthMethod(value as "email" | "phone")} className="mt-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="email">Email</TabsTrigger>
-                <TabsTrigger value="phone">Phone</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 bg-white/10">
+                <TabsTrigger 
+                  value="email"
+                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white"
+                >
+                  Email
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="phone"
+                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white"
+                >
+                  Phone
+                </TabsTrigger>
               </TabsList>
 
               <AuthForm

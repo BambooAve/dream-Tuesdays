@@ -2,7 +2,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const checkProfileCompletion = async (userId: string) => {
   try {
-    // First ensure profile exists
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("first_name")
@@ -14,21 +13,7 @@ export const checkProfileCompletion = async (userId: string) => {
       return false;
     }
 
-    // If no profile exists, create one
-    if (!profile) {
-      const { error: insertError } = await supabase
-        .from("profiles")
-        .insert([{ id: userId }]);
-
-      if (insertError) {
-        console.error("Error creating profile:", insertError);
-        return false;
-      }
-
-      return false; // New profile needs completion
-    }
-
-    return !!profile.first_name;
+    return !!profile?.first_name;
   } catch (error) {
     console.error("Error in checkProfileCompletion:", error);
     return false;
@@ -52,17 +37,7 @@ export const createUserWithMetadata = async (
 
     if (error) throw error;
 
-    // Only return if we have both data and user
     if (data?.user) {
-      // Ensure profile exists - just insert, no need to select
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert([{ id: data.user.id }]);
-
-      if (profileError) {
-        console.error("Error ensuring profile exists:", profileError);
-      }
-
       return { user: data.user };
     }
 

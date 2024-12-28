@@ -35,16 +35,17 @@ export const AuthForm = ({ isSignUp, authMethod, isLoading, onSubmit }: AuthForm
           name="identifier"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{authMethod === "email" ? "Email" : "Phone"}</FormLabel>
+              <FormLabel className="text-white">{authMethod === "email" ? "Email" : "Phone"}</FormLabel>
               <FormControl>
                 <Input
                   type={authMethod === "email" ? "email" : "tel"}
                   placeholder={authMethod === "email" ? "Enter your email" : "Enter your phone number"}
                   disabled={isLoading}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-300" />
             </FormItem>
           )}
         />
@@ -54,21 +55,26 @@ export const AuthForm = ({ isSignUp, authMethod, isLoading, onSubmit }: AuthForm
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-white">Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
                   placeholder="Enter your password"
                   disabled={isLoading}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-300" />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button 
+          type="submit" 
+          className="w-full bg-white text-black hover:bg-white/90" 
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
