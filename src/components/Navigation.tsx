@@ -61,14 +61,12 @@ export const Navigation = () => {
   }, [navigate]);
 
   const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple clicks
+    if (isLoggingOut) return;
     
     setIsLoggingOut(true);
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
       // Clear user state
       setUser(null);
@@ -81,6 +79,7 @@ export const Navigation = () => {
       
       // Redirect to home page
       navigate("/");
+      
     } catch (error: any) {
       console.error("Logout error:", error);
       toast({
