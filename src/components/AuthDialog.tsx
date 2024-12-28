@@ -35,8 +35,11 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
     let title = "Error";
     let description = error.message;
 
-    // Handle specific error cases
-    if (error.message.includes("Invalid login credentials")) {
+    if (error.message.includes("phone_provider_disabled")) {
+      title = "Phone Authentication Unavailable";
+      description = "Phone authentication is currently disabled. Please use email authentication instead.";
+      setAuthType("email");
+    } else if (error.message.includes("Invalid login credentials")) {
       if (mode === "sign-in") {
         title = "Account Not Found";
         description = "We couldn't find an account with these credentials. Please check your password or sign up if you don't have an account yet.";
@@ -53,7 +56,6 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
     } else if (error.message.includes("User already registered")) {
       title = "Account Exists";
       description = "An account with these credentials already exists. Please sign in instead.";
-      // Switch to sign-in mode
       setMode("sign-in");
     }
 
@@ -99,11 +101,10 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         toast({
           title: "Success!",
           description: authType === "email" 
-            ? "Please check your email for verification."
-            : "Please check your phone for the verification code.",
+            ? "Account created successfully! You can now sign in."
+            : "Account created successfully! You can now sign in.",
         });
         
-        // Switch to sign-in mode after successful signup
         setMode("sign-in");
       } else {
         const { error } = authType === "email"
@@ -137,7 +138,7 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         <Tabs value={authType} onValueChange={(value) => setAuthType(value as "email" | "phone")}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="phone">Phone</TabsTrigger>
+            <TabsTrigger value="phone" disabled>Phone (Unavailable)</TabsTrigger>
           </TabsList>
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <TabsContent value="email">
@@ -150,18 +151,21 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
               />
             </TabsContent>
             <TabsContent value="phone">
-              <Input
-                type="tel"
-                placeholder="Phone (e.g., +12345678900)"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required={authType === "phone"}
-                pattern="^\+[1-9]\d{1,14}$"
-                title="Phone number must be in E.164 format (e.g., +12345678900)"
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Format: +[country code][number] (e.g., +12345678900)
-              </p>
+              <div className="space-y-2">
+                <Input
+                  type="tel"
+                  placeholder="Phone (e.g., +12345678900)"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  required={authType === "phone"}
+                  pattern="^\+[1-9]\d{1,14}$"
+                  title="Phone number must be in E.164 format (e.g., +12345678900)"
+                  disabled
+                />
+                <p className="text-sm text-gray-500">
+                  Phone authentication is currently unavailable. Please use email instead.
+                </p>
+              </div>
             </TabsContent>
             <Input
               type="password"
