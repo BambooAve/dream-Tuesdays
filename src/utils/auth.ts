@@ -54,12 +54,10 @@ export const createUserWithMetadata = async (
 
     // Only return if we have both data and user
     if (data?.user) {
-      // Ensure profile exists
+      // Ensure profile exists - just insert, no need to select
       const { error: profileError } = await supabase
         .from("profiles")
-        .insert([{ id: data.user.id }])
-        .select()
-        .maybeSingle();
+        .insert([{ id: data.user.id }]);
 
       if (profileError) {
         console.error("Error ensuring profile exists:", profileError);

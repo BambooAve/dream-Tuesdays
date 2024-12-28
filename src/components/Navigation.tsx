@@ -39,7 +39,7 @@ export const Navigation = () => {
               .from("profiles")
               .select("first_name")
               .eq("id", currentUser.id)
-              .single();
+              .maybeSingle();
 
             if (!profile?.first_name) {
               // If profile is not complete, redirect to profile completion
@@ -50,7 +50,7 @@ export const Navigation = () => {
                 .from("vivid_vision_sessions")
                 .select("id")
                 .eq("user_id", currentUser.id)
-                .single();
+                .maybeSingle();
 
               // If no sessions exist, this is a new user - redirect to vivid vision
               if (!existingSessions) {
