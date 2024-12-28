@@ -58,5 +58,5 @@ export const GrowthAnimation = () => {
     return () => p5Instance.remove();
   }, []);
 
-  return <div ref={containerRef} className="absolute right-10 top-1/2 -translate-y-1/2" />;
+  return <div ref={containerRef} className="absolute left-20 top-1/2 -translate-y-1/2" />;
 };
