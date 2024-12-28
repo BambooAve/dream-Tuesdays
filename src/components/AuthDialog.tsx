@@ -22,11 +22,19 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
                   brand: "black",
                   brandAccent: "#666",
                 },
+                radii: {
+                  borderRadiusButton: "8px",
+                  buttonBorderRadius: "8px",
+                  inputBorderRadius: "8px",
+                },
               },
             },
           }}
           theme="light"
-          providers={[]}
+          providers={["phone"]}
+          view="sign_in"
+          showLinks={true}
+          redirectTo={window.location.origin}
         />
       </DialogContent>
     </Dialog>
