@@ -41,8 +41,20 @@ export const AuthDialog = ({
     try {
       const { identifier, password } = values;
       const authData = authMethod === "email" 
-        ? { email: identifier, password }
-        : { phone: identifier, password };
+        ? { 
+            email: identifier, 
+            password,
+            options: {
+              redirectTo: window.location.origin,
+            }
+          }
+        : { 
+            phone: identifier, 
+            password,
+            options: {
+              redirectTo: window.location.origin,
+            }
+          };
 
       const { error } = isSignUp
         ? await supabase.auth.signUp(authData)
