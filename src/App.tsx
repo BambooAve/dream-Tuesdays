@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import { VividVisionChat } from "./components/VividVisionChat/VividVisionChat";
+import { ProfileCompletion } from "./pages/ProfileCompletion";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/vivid-vision" element={<VividVisionChat />} />
+            <Route path="/complete-profile" element={<ProfileCompletion />} />
           </Routes>
           <Toaster />
           <Sonner />

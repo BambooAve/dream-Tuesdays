@@ -27,17 +27,29 @@ export const Navigation = () => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
 
-      // If user just signed in, check if they have any vivid vision sessions
       if (currentUser) {
-        const { data: existingSessions } = await supabase
-          .from("vivid_vision_sessions")
-          .select("id")
-          .eq("user_id", currentUser.id)
+        // Check if user has completed their profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("first_name")
+          .eq("id", currentUser.id)
           .single();
 
-        // If no sessions exist, this is a new user - redirect to vivid vision
-        if (!existingSessions) {
-          navigate("/vivid-vision");
+        if (!profile?.first_name) {
+          // If profile is not complete, redirect to profile completion
+          navigate("/complete-profile");
+        } else {
+          // Check for vivid vision sessions
+          const { data: existingSessions } = await supabase
+            .from("vivid_vision_sessions")
+            .select("id")
+            .eq("user_id", currentUser.id)
+            .single();
+
+          // If no sessions exist, this is a new user - redirect to vivid vision
+          if (!existingSessions) {
+            navigate("/vivid-vision");
+          }
         }
       }
     });
