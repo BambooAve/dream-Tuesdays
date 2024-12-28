@@ -26,12 +26,12 @@ import {
 } from "@/components/ui/select";
 
 interface Profile {
-  first_name: string;
-  last_name: string;
-  age: number;
-  gender: string;
-  city: string;
-  motivation: string;
+  first_name: string | null;
+  last_name: string | null;
+  age: number | null;
+  gender: string | null;
+  city: string | null;
+  motivation: string | null;
   avatar_url: string | null;
 }
 
@@ -78,14 +78,28 @@ export const Profile = () => {
           return;
         }
 
+        // Use maybeSingle() instead of single() to handle the case when no profile is found
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", session.user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) throw profileError;
-        setProfile(profileData);
+        
+        // If no profile exists, create one
+        if (!profileData) {
+          const { data: newProfile, error: createError } = await supabase
+            .from("profiles")
+            .insert([{ id: session.user.id }])
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          setProfile(newProfile);
+        } else {
+          setProfile(profileData);
+        }
 
         // Fetch categories
         const { data: categoriesData, error: categoriesError } = await supabase
@@ -173,14 +187,6 @@ export const Profile = () => {
     );
   }
 
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-gradient-to-tl from-brand-orange via-brand-orange to-gray-100/20 flex items-center justify-center">
-        <div className="text-white">No profile found</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-tl from-brand-orange via-brand-orange to-gray-100/20">
       <Navigation />
@@ -190,7 +196,7 @@ export const Profile = () => {
           <Card className="bg-white/10 border-white/20 backdrop-blur-sm text-white">
             <CardHeader className="flex flex-row items-center gap-4">
               <Avatar className="h-20 w-20">
-                {profile.avatar_url ? (
+                {profile?.avatar_url ? (
                   <AvatarImage src={profile.avatar_url} alt={`${profile.first_name}'s avatar`} />
                 ) : (
                   <AvatarFallback className="bg-brand-black text-white">
@@ -200,9 +206,9 @@ export const Profile = () => {
               </Avatar>
               <div>
                 <h1 className="text-3xl font-bold">
-                  {profile.first_name} {profile.last_name}
+                  {profile?.first_name || 'Welcome'} {profile?.last_name || ''}
                 </h1>
-                <p className="text-white/80">{profile.city}</p>
+                <p className="text-white/80">{profile?.city || 'Complete your profile'}</p>
               </div>
             </CardHeader>
           </Card>
