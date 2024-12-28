@@ -60,19 +60,29 @@ export const Navigation = () => {
   }, [navigate]);
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-      });
-    } else {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+      
+      // Clear user state
+      setUser(null);
+      
+      // Show success toast
       toast({
         title: "Signed out successfully",
         description: "You have been logged out.",
       });
+      
+      // Redirect to home page
       navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to sign out. Please try again.",
+      });
     }
   };
 
