@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { FullscreenMenu } from "./FullscreenMenu";
 import { AuthDialog } from "./AuthDialog";
-import { UserRound, LogOut } from "lucide-react";
+import { UserRound, LogOut, LogIn } from "lucide-react";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -117,9 +117,10 @@ export const Navigation = () => {
           ) : (
             <Button 
               variant="ghost" 
-              className="text-sm font-medium text-white hover:bg-white/10"
+              className="text-white hover:bg-white/10 flex items-center gap-2"
               onClick={() => setIsAuthOpen(true)}
             >
+              <LogIn className="h-5 w-5" />
               Sign In
             </Button>
           )}
