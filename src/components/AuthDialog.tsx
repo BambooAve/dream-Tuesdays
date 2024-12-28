@@ -1,15 +1,13 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { AuthForm } from "./Auth/AuthForm";
+import { createUserWithMetadata, checkProfileCompletion } from "@/utils/auth";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 
 const authSchema = z.object({
   identifier: z.string().min(1, "Required"),
@@ -24,17 +22,10 @@ export const AuthDialog = ({
   onClose: () => void;
 }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
-
-  const form = useForm<z.infer<typeof authSchema>>({
-    resolver: zodResolver(authSchema),
-    defaultValues: {
-      identifier: "",
-      password: "",
-    },
-  });
 
   const onSubmit = async (values: z.infer<typeof authSchema>) => {
     if (isLoading) return;
@@ -43,54 +34,22 @@ export const AuthDialog = ({
     try {
       const { identifier, password } = values;
       
-      if (authMethod === "email") {
-        const { data, error } = isSignUp
-          ? await supabase.auth.signUp({
-              email: identifier,
-              password,
-              options: {
-                emailRedirectTo: window.location.origin,
-                data: {
-                  email: identifier, // Include email in metadata for profile creation
-                },
-              },
-            })
-          : await supabase.auth.signInWithPassword({
-              email: identifier,
-              password,
-            });
-          
-        if (error) throw error;
-
-        // Check if the profile was created successfully for new users
-        if (isSignUp && data.user) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .select()
-            .eq('id', data.user.id)
-            .maybeSingle();
-
-          if (profileError) {
-            console.error('Profile creation error:', profileError);
-            throw new Error('Failed to create user profile. Please try again.');
+      if (isSignUp) {
+        const { user } = await createUserWithMetadata(identifier, password, authMethod === "email");
+        
+        if (user) {
+          // Redirect to profile completion if profile is not complete
+          const isProfileComplete = await checkProfileCompletion(user.id);
+          if (!isProfileComplete) {
+            navigate("/complete-profile");
           }
         }
       } else {
-        const { error } = isSignUp
-          ? await supabase.auth.signUp({
-              phone: identifier,
-              password,
-              options: {
-                data: {
-                  phone: identifier, // Include phone in metadata for profile creation
-                },
-              },
-            })
-          : await supabase.auth.signInWithPassword({
-              phone: identifier,
-              password,
-            });
-          
+        const { error } = await supabase.auth.signInWithPassword(
+          authMethod === "email" 
+            ? { email: identifier, password }
+            : { phone: identifier, password }
+        );
         if (error) throw error;
       }
 
@@ -101,7 +60,6 @@ export const AuthDialog = ({
           : "You've successfully signed in.",
       });
       
-      form.reset();
       onClose();
     } catch (error: any) {
       console.error("Auth error:", error);
@@ -115,14 +73,8 @@ export const AuthDialog = ({
     }
   };
 
-  const handleClose = () => {
-    form.reset();
-    setIsLoading(false);
-    onClose();
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
@@ -136,74 +88,25 @@ export const AuthDialog = ({
             <TabsTrigger value="phone">Phone</TabsTrigger>
           </TabsList>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
-              <FormField
-                control={form.control}
-                name="identifier"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{authMethod === "email" ? "Email" : "Phone"}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type={authMethod === "email" ? "email" : "tel"}
-                        placeholder={authMethod === "email" ? "Enter your email" : "Enter your phone number"}
-                        disabled={isLoading}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        disabled={isLoading}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Please wait
-                  </>
-                ) : (
-                  isSignUp ? "Create account" : "Sign in"
-                )}
-              </Button>
-
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  form.reset();
-                }}
-                disabled={isLoading}
-              >
-                {isSignUp
-                  ? "Already have an account? Sign in"
-                  : "Don't have an account? Sign up"}
-              </Button>
-            </form>
-          </Form>
+          <AuthForm
+            isSignUp={isSignUp}
+            authMethod={authMethod}
+            isLoading={isLoading}
+            onSubmit={onSubmit}
+          />
         </Tabs>
+
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full mt-4"
+          onClick={() => setIsSignUp(!isSignUp)}
+          disabled={isLoading}
+        >
+          {isSignUp
+            ? "Already have an account? Sign in"
+            : "Don't have an account? Sign up"}
+        </Button>
       </DialogContent>
     </Dialog>
   );
