@@ -1,18 +1,23 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const checkProfileCompletion = async (userId: string) => {
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("first_name")
-    .eq("id", userId)
-    .single();
+  try {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("first_name")
+      .eq("id", userId)
+      .maybeSingle();
 
-  if (error) {
-    console.error("Error checking profile completion:", error);
+    if (error) {
+      console.error("Error checking profile completion:", error);
+      return false;
+    }
+
+    return !!profile?.first_name;
+  } catch (error) {
+    console.error("Error in checkProfileCompletion:", error);
     return false;
   }
-
-  return !!profile?.first_name;
 };
 
 export const createUserWithMetadata = async (
