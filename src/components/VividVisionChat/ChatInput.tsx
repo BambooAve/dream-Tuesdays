@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 
 interface ChatInputProps {
   input: string;
-  setInput: (value: string) => void;
+  setInput: React.Dispatch<React.SetStateAction<string>>;
   handleSendMessage: () => void;
   isLoading: boolean;
 }
