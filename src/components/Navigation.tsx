@@ -96,10 +96,13 @@ export const Navigation = () => {
     <>
       <nav className="fixed w-full top-0 z-50 bg-transparent backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <button 
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center"
-            onClick={() => setIsMenuOpen(true)}
-          />
+          <div className="flex items-center gap-2">
+            <button 
+              className="w-10 h-10 rounded-full bg-white flex items-center justify-center"
+              onClick={() => setIsMenuOpen(true)}
+            />
+            <span className="text-white font-medium">MENU</span>
+          </div>
           {user ? (
             <div className="flex items-center gap-2">
               <Link to="/profile">
