@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,36 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
     password: "",
   });
 
+  useEffect(() => {
+    // Handle the redirect from email confirmation
+    const handleEmailConfirmation = async () => {
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        try {
+          const { data, error } = await supabase.auth.getSession();
+          if (error) throw error;
+          if (data?.session) {
+            toast({
+              title: "Success!",
+              description: "Email confirmed successfully. You are now signed in.",
+            });
+            // Remove the hash from the URL
+            window.location.hash = '';
+            onClose();
+          }
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          });
+        }
+      }
+    };
+
+    handleEmailConfirmation();
+  }, [toast, onClose]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -33,6 +63,9 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
           ? await supabase.auth.signUp({
               email: formData.email,
               password: formData.password,
+              options: {
+                emailRedirectTo: window.location.origin,
+              },
             })
           : await supabase.auth.signUp({
               phone: formData.phone,
