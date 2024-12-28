@@ -23,71 +23,11 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
     password: "",
   });
 
-  const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phone)) {
-      throw new Error("Phone number must be in E.164 format (e.g., +12345678900)");
-    }
-    return phone;
-  };
-
-  const handleAuthError = (error: any) => {
-    let title = "Error";
-    let description = error.message;
-
-    if (error.message.includes("phone_provider_disabled")) {
-      title = "Phone Authentication Unavailable";
-      description = "Phone authentication is currently disabled. Please use email authentication instead.";
-      setAuthType("email");
-    } else if (error.message.includes("email_provider_disabled")) {
-      title = "Email Authentication Unavailable";
-      description = "Email authentication is currently disabled. Please try again later or contact support.";
-    } else if (error.message.includes("Invalid login credentials")) {
-      if (mode === "sign-in") {
-        title = "Account Not Found";
-        description = "We couldn't find an account with these credentials. Please check your password or sign up if you don't have an account yet.";
-      } else {
-        title = "Sign Up Failed";
-        description = "There was an error creating your account. Please try again.";
-      }
-    } else if (error.message.includes("Email not confirmed")) {
-      title = "Email Not Verified";
-      description = "Please check your email for the verification link.";
-    } else if (error.message.includes("Phone not confirmed")) {
-      title = "Phone Not Verified";
-      description = "Please verify your phone number before signing in.";
-    } else if (error.message.includes("User already registered")) {
-      title = "Account Exists";
-      description = "An account with these credentials already exists. Please sign in instead.";
-      setMode("sign-in");
-    }
-
-    toast({
-      variant: "destructive",
-      title,
-      description,
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      if (authType === "phone") {
-        try {
-          validatePhoneNumber(formData.phone);
-        } catch (error: any) {
-          toast({
-            variant: "destructive",
-            title: "Invalid Phone Number",
-            description: error.message,
-          });
-          setIsLoading(false);
-          return;
-        }
-      }
-
       if (mode === "sign-up") {
         const { error } = authType === "email" 
           ? await supabase.auth.signUp({
@@ -103,9 +43,7 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         
         toast({
           title: "Success!",
-          description: authType === "email" 
-            ? "Account created successfully! You can now sign in."
-            : "Account created successfully! You can now sign in.",
+          description: "Account created successfully! You can now sign in.",
         });
         
         setMode("sign-in");
@@ -124,7 +62,11 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         onClose();
       }
     } catch (error: any) {
-      handleAuthError(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -141,7 +83,7 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         <Tabs value={authType} onValueChange={(value) => setAuthType(value as "email" | "phone")}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="phone" disabled>Phone (Unavailable)</TabsTrigger>
+            <TabsTrigger value="phone">Phone</TabsTrigger>
           </TabsList>
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <TabsContent value="email">
@@ -154,21 +96,15 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
               />
             </TabsContent>
             <TabsContent value="phone">
-              <div className="space-y-2">
-                <Input
-                  type="tel"
-                  placeholder="Phone (e.g., +12345678900)"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required={authType === "phone"}
-                  pattern="^\+[1-9]\d{1,14}$"
-                  title="Phone number must be in E.164 format (e.g., +12345678900)"
-                  disabled
-                />
-                <p className="text-sm text-gray-500">
-                  Phone authentication is currently unavailable. Please use email instead.
-                </p>
-              </div>
+              <Input
+                type="tel"
+                placeholder="Phone (e.g., +12345678900)"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                required={authType === "phone"}
+                pattern="^\+[1-9]\d{1,14}$"
+                title="Phone number must be in E.164 format (e.g., +12345678900)"
+              />
             </TabsContent>
             <Input
               type="password"
