@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { AuthDialog } from "./AuthDialog";
 
 export const Hero = () => {
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
       <video
@@ -26,10 +30,14 @@ export const Hero = () => {
         <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8">
           A minimalist approach to setting and achieving your most ambitious goals.
         </p>
-        <Button className="bg-white text-black hover:bg-white/90 px-8 py-6 rounded-full text-lg">
+        <Button 
+          className="bg-white text-black hover:bg-white/90 px-8 py-6 rounded-full text-lg"
+          onClick={() => setIsAuthOpen(true)}
+        >
           Get Started
         </Button>
       </div>
+      <AuthDialog isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </section>
   );
 };
