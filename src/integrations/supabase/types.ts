@@ -57,6 +57,42 @@ export type Database = {
         }
         Relationships: []
       }
+      vivid_vision_conversation_logs: {
+        Row: {
+          conversation_data: Json
+          created_at: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          conversation_data: Json
+          created_at?: string
+          id?: string
+          session_id: string
+        }
+        Update: {
+          conversation_data?: Json
+          created_at?: string
+          id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_session"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "vivid_vision_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vivid_vision_conversation_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "vivid_vision_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vivid_vision_messages: {
         Row: {
           content: string

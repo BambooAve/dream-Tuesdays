@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { ProgressBar } from "./ProgressBar";
+import { ChatCompletion } from "./ChatCompletion";
 import { Message, Session } from "@/types/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,6 @@ export const VividVisionChat = () => {
 
   const handleStartChat = async () => {
     setHasStarted(true);
-    // Send initial message
     await sendAssistantMessage("Welcome to your Vivid Vision journey! Let's start crafting your future vision. First, tell me what brings you here today?");
   };
 
@@ -155,7 +155,7 @@ export const VividVisionChat = () => {
     }
   };
 
-  // Check if the chat is complete (last message is from assistant and contains the final message)
+  // Check if the chat is complete
   const isChatComplete = messages.length > 0 && 
     messages[messages.length - 1].role === 'assistant' && 
     messages[messages.length - 1].content.includes("I'm now working on creating your final Vivid Vision goals");
@@ -192,15 +192,7 @@ export const VividVisionChat = () => {
       {session && <ProgressBar progress={session.progress} />}
       <ChatMessages messages={messages} />
       {isChatComplete ? (
-        <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-center items-center bg-gradient-to-t from-black to-transparent">
-          <Button
-            onClick={() => navigate('/account')}
-            size="lg"
-            className="bg-white text-black hover:bg-white/90 px-8 py-6 text-lg rounded-full"
-          >
-            View Your Vision Board
-          </Button>
-        </div>
+        <ChatCompletion sessionId={session?.id || ''} messages={messages} />
       ) : (
         <ChatInput
           input={input}
