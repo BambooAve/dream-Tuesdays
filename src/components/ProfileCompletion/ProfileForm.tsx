@@ -53,7 +53,7 @@ export const ProfileForm = () => {
         description: "Your profile has been successfully updated.",
       });
 
-      navigate("/vivid-vision");
+      navigate("/profile");
     } catch (error: any) {
       toast({
         variant: "destructive",

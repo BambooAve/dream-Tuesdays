@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import { VividVisionChat } from "./components/VividVisionChat/VividVisionChat";
 import { ProfileCompletion } from "./pages/ProfileCompletion";
+import { Profile } from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/vivid-vision" element={<VividVisionChat />} />
             <Route path="/complete-profile" element={<ProfileCompletion />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
           <Toaster />
           <Sonner />
