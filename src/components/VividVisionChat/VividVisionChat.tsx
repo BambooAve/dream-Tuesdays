@@ -6,6 +6,7 @@ import { ProgressBar } from "./ProgressBar";
 import { ChatCompletion } from "./ChatCompletion";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { supabase } from "@/integrations/supabase/client";
+import { Message, Session } from "@/types/supabase";
 
 export const VividVisionChat = () => {
   const {
@@ -24,6 +25,7 @@ export const VividVisionChat = () => {
     setInput,
     isLoading,
     typingMessage,
+    setTypingMessage,
     handleSendMessage,
     handleTypingComplete,
   } = useMessageHandling(
