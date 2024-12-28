@@ -37,14 +37,24 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
 
     // Handle specific error cases
     if (error.message.includes("Invalid login credentials")) {
-      title = "Account Not Found";
-      description = "We couldn't find an account with these credentials. Please sign up if you don't have an account yet.";
+      if (mode === "sign-in") {
+        title = "Account Not Found";
+        description = "We couldn't find an account with these credentials. Please check your password or sign up if you don't have an account yet.";
+      } else {
+        title = "Sign Up Failed";
+        description = "There was an error creating your account. Please try again.";
+      }
     } else if (error.message.includes("Email not confirmed")) {
       title = "Email Not Verified";
       description = "Please check your email for the verification link.";
     } else if (error.message.includes("Phone not confirmed")) {
       title = "Phone Not Verified";
       description = "Please verify your phone number before signing in.";
+    } else if (error.message.includes("User already registered")) {
+      title = "Account Exists";
+      description = "An account with these credentials already exists. Please sign in instead.";
+      // Switch to sign-in mode
+      setMode("sign-in");
     }
 
     toast({
