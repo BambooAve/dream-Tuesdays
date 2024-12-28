@@ -22,9 +22,13 @@ export const FloatingOctahedron = () => {
         p.rotateY(angle * 0.8);
         p.rotateZ(angle * 0.5);
         
-        // Black octahedron with slight transparency
+        // Create octahedron-like shape using two cones
+        p.push();
         p.fill(0, 0, 0, 220);
-        p.octahedron(50);
+        p.cone(70, 70, 8, 1); // Top cone
+        p.rotateX(p.PI); // Rotate 180 degrees
+        p.cone(70, 70, 8, 1); // Bottom cone
+        p.pop();
         
         // Animate rotation
         angle += 0.02;
