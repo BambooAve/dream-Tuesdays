@@ -102,25 +102,18 @@ export const VividVisionChat = () => {
         setInput("");
 
         // Get GPT response
-        const response = await fetch('/functions/v1/vivid-vision-chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
+        const { data, error } = await supabase.functions.invoke('vivid-vision-chat', {
+          body: {
             messages: messages.concat(userMessage as Message).map(msg => ({
               role: msg.role,
               content: msg.content,
             })),
-          }),
+          },
         });
 
-        if (!response.ok) {
+        if (error) {
           throw new Error('Failed to get AI response');
         }
-
-        const { content } = await response.json();
 
         // Update progress
         const newProgress = Math.min(session.progress + 10, 100);
@@ -132,9 +125,10 @@ export const VividVisionChat = () => {
         setSession(prev => prev ? { ...prev, progress: newProgress } : null);
 
         // Save AI response
-        await sendAssistantMessage(content);
+        await sendAssistantMessage(data.content);
       }
     } catch (error) {
+      console.error('Error sending message:', error);
       toast({
         title: "Error",
         description: "Failed to send message. Please try again.",
