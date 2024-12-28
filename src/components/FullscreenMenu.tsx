@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 interface FullscreenMenuProps {
   isOpen: boolean;
@@ -24,6 +25,14 @@ export const FullscreenMenu = ({ isOpen, onClose }: FullscreenMenuProps) => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 bg-black z-50 flex items-center justify-center"
         >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-6 right-6 text-white hover:text-gray-300 transition-colors"
+            onClick={onClose}
+          >
+            <X className="h-6 w-6" />
+          </Button>
           <nav className="text-center">
             {menuItems.map((item) => (
               <motion.div
