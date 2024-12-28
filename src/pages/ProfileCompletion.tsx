@@ -18,7 +18,7 @@ export const ProfileCompletion = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#AA5E3B] to-[#8B4513] relative">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-[#AA5E3B] relative">
       <div className="container mx-auto px-8 py-20">
         <div className="max-w-2xl">
           <h1 className="text-4xl font-bold mb-8 text-white">Complete Your Profile</h1>

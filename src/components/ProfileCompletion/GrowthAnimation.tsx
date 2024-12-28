@@ -21,15 +21,32 @@ export const GrowthAnimation = () => {
         p.rotateY(angle);
         p.rotateX(angle * 0.3);
         
+        // Create a more organic shape using spheres and cylinders
         p.fill(0);
-        p.box(100);
         
-        // Add growing branches
-        for (let i = 0; i < 4; i++) {
+        // Main sphere at the center
+        p.push();
+        p.translate(0, 0, 0);
+        p.sphere(40);
+        p.pop();
+        
+        // Add growing branches with spheres at the tips
+        const branches = 5;
+        for (let i = 0; i < branches; i++) {
+          const branchAngle = (p.TWO_PI * i) / branches;
+          const height = 80 + p.sin(angle * 2) * 15;
+          
           p.push();
-          p.rotateY(p.PI * i / 2);
-          p.translate(0, -50 - Math.sin(angle) * 20, 0);
-          p.box(20, 100, 20);
+          p.rotateY(branchAngle);
+          p.rotateZ(p.PI / 4 + p.sin(angle) * 0.2);
+          
+          // Draw branch cylinder
+          p.translate(0, -height/2, 0);
+          p.cylinder(8, height);
+          
+          // Draw sphere at tip
+          p.translate(0, -height/2, 0);
+          p.sphere(15);
           p.pop();
         }
         
