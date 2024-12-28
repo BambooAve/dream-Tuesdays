@@ -24,12 +24,36 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
   });
 
   const validatePhoneNumber = (phone: string) => {
-    // Basic E.164 format validation
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     if (!phoneRegex.test(phone)) {
       throw new Error("Phone number must be in E.164 format (e.g., +12345678900)");
     }
     return phone;
+  };
+
+  const handleAuthError = (error: any) => {
+    let title = "Error";
+    let description = error.message;
+
+    // Handle specific error cases
+    if (error.message.includes("Invalid login credentials")) {
+      if (mode === "sign-in") {
+        title = "Invalid Credentials";
+        description = "Please check your credentials or sign up if you don't have an account.";
+      }
+    } else if (error.message.includes("Email not confirmed")) {
+      title = "Email Not Verified";
+      description = "Please check your email for the verification link.";
+    } else if (error.message.includes("Phone not confirmed")) {
+      title = "Phone Not Verified";
+      description = "Please verify your phone number before signing in.";
+    }
+
+    toast({
+      variant: "destructive",
+      title,
+      description,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,10 +87,16 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
             });
 
         if (error) throw error;
+        
         toast({
           title: "Success!",
-          description: "Please check your email/phone for verification.",
+          description: authType === "email" 
+            ? "Please check your email for verification."
+            : "Please check your phone for the verification code.",
         });
+        
+        // Switch to sign-in mode after successful signup
+        setMode("sign-in");
       } else {
         const { error } = authType === "email"
           ? await supabase.auth.signInWithPassword({
@@ -82,11 +112,7 @@ export const AuthDialog = ({ isOpen, onClose }: AuthDialogProps) => {
         onClose();
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
+      handleAuthError(error);
     } finally {
       setIsLoading(false);
     }
