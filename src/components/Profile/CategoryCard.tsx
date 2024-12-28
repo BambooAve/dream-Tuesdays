@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { GoalCard } from "./GoalCard";
 import { EmptyState } from "./EmptyState";
+import { Category, Goal } from "./types";
 import { 
-  BookOpen, 
   Heart, 
-  DollarSign, 
   Briefcase, 
+  DollarSign, 
+  BookOpen, 
   Users, 
   Plane, 
   Leaf, 
@@ -15,19 +16,6 @@ import {
   LucideIcon
 } from "lucide-react";
 
-interface Goal {
-  id: string;
-  title: string;
-  description: string | null;
-  target_date: string | null;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  type: string;
-}
-
 interface CategoryCardProps {
   category: Category;
   goals: Goal[];
@@ -36,10 +24,10 @@ interface CategoryCardProps {
 
 const getCategoryIcon = (type: string): LucideIcon => {
   const icons: Record<string, LucideIcon> = {
-    PERSONAL_DEVELOPMENT: BookOpen,
     HEALTH_AND_WELLNESS: Heart,
-    FINANCIAL_GOALS: DollarSign,
     CAREER_AND_PROFESSIONAL_GROWTH: Briefcase,
+    FINANCIAL_GOALS: DollarSign,
+    PERSONAL_DEVELOPMENT: BookOpen,
     RELATIONSHIPS_AND_SOCIAL_LIFE: Users,
     TRAVEL_AND_ADVENTURE: Plane,
     HABITS_AND_LIFESTYLE_CHANGES: Leaf,
