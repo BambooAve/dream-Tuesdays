@@ -55,6 +55,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        brand: {
+          orange: "#AA5E3B",
+          black: "#000000", 
+          white: "#FFFFFF",
+          green: "#3BAA5E"
+        },
         teal: {
           light: "#E5F6F4",
           DEFAULT: "#2DD4BF",
