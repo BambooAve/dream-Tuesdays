@@ -45,9 +45,11 @@ export const AuthDialog = ({
         const emailAuthData = {
           email: identifier,
           password,
-          options: {
-            redirectTo: window.location.origin,
-          },
+          ...(isSignUp && {
+            options: {
+              emailRedirectTo: window.location.origin,
+            },
+          }),
         };
         
         const { error } = isSignUp
@@ -59,9 +61,6 @@ export const AuthDialog = ({
         const phoneAuthData = {
           phone: identifier,
           password,
-          options: {
-            redirectTo: window.location.origin,
-          },
         };
         
         const { error } = isSignUp
