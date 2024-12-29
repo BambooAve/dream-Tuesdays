@@ -30,8 +30,7 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
 
   const setupWebSocket = () => {
     console.log('Setting up WebSocket connection...');
-    // Use the correct WebSocket URL with the project reference
-    const wsUrl = `wss://rcahrolojfosvknoxiho.functions.supabase.co/realtime-chat`;
+    const wsUrl = `wss://rcahrolojfosvknoxiho.functions.supabase.co/functions/v1/realtime-chat`;
     const newWs = new WebSocket(wsUrl);
 
     newWs.onopen = () => {
