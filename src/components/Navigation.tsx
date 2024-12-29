@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FullscreenMenu } from "./FullscreenMenu";
 import { AuthDialog } from "./AuthDialog";
 import { UserRound, LogOut, LogIn, Loader2 } from "lucide-react";
-import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -33,7 +32,6 @@ export const Navigation = () => {
           const currentUser = session?.user ?? null;
           setUser(currentUser);
 
-          // Only proceed with profile checks if we have a logged-in user
           if (currentUser && !isLoggingOut) {
             const { data: profile } = await supabase
               .from("profiles")
@@ -41,23 +39,9 @@ export const Navigation = () => {
               .eq("id", currentUser.id)
               .maybeSingle();
 
-            // Only redirect to profile completion if user is logged in and profile is incomplete
             if (!profile?.first_name && location.pathname !== '/complete-profile') {
               navigate("/complete-profile");
               return;
-            }
-
-            // Only check for vivid vision sessions if profile is complete
-            if (profile?.first_name && location.pathname !== '/vivid-vision') {
-              const { data: existingSessions } = await supabase
-                .from("vivid_vision_sessions")
-                .select("id")
-                .eq("user_id", currentUser.id)
-                .maybeSingle();
-
-              if (!existingSessions) {
-                navigate("/vivid-vision");
-              }
             }
           }
         });
@@ -102,7 +86,6 @@ export const Navigation = () => {
     }
   };
 
-  // Don't render navigation until auth state is determined
   if (isLoading) {
     return null;
   }
