@@ -105,6 +105,7 @@ export type Database = {
           phone_verified: boolean | null
           updated_at: string
           username: string | null
+          vivid_vision: string | null
         }
         Insert: {
           age?: number | null
@@ -121,6 +122,7 @@ export type Database = {
           phone_verified?: boolean | null
           updated_at?: string
           username?: string | null
+          vivid_vision?: string | null
         }
         Update: {
           age?: number | null
@@ -137,6 +139,7 @@ export type Database = {
           phone_verified?: boolean | null
           updated_at?: string
           username?: string | null
+          vivid_vision?: string | null
         }
         Relationships: []
       }
