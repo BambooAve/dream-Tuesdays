@@ -2,7 +2,6 @@ import { useVividVisionSession } from "./hooks/useVividVisionSession";
 import { useMessageHandling } from "./hooks/useMessageHandling";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
-import { ProgressBar } from "./ProgressBar";
 import { ChatCompletion } from "./ChatCompletion";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { AnimatedBackground } from "./AnimatedBackground";
@@ -111,7 +110,6 @@ export const VividVisionChat = () => {
           <X className="h-5 w-5" />
         </Button>
       </div>
-      {session && <ProgressBar progress={session.progress} />}
       <ChatMessages 
         messages={messages} 
         typingMessage={typingMessage}
