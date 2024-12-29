@@ -15,6 +15,7 @@ export const Profile = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddGoalOpen, setIsAddGoalOpen] = useState(false);
+  const [hasCompletedChat, setHasCompletedChat] = useState(false);
   const [newGoal, setNewGoal] = useState({
     title: "",
     description: "",
@@ -33,6 +34,7 @@ export const Profile = () => {
           return;
         }
 
+        // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -54,6 +56,7 @@ export const Profile = () => {
           setProfile(profileData);
         }
 
+        // Fetch categories
         const { data: categoriesData, error: categoriesError } = await supabase
           .from("categories")
           .select("*")
@@ -62,6 +65,7 @@ export const Profile = () => {
         if (categoriesError) throw categoriesError;
         setCategories(categoriesData);
 
+        // Fetch goals
         const { data: goalsData, error: goalsError } = await supabase
           .from("goals")
           .select("*")
@@ -69,6 +73,18 @@ export const Profile = () => {
 
         if (goalsError) throw goalsError;
         setGoals(goalsData);
+
+        // Check if user has completed chat
+        const { data: sessions, error: sessionsError } = await supabase
+          .from("vivid_vision_sessions")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .not("completed_at", "is", null)
+          .limit(1);
+
+        if (sessionsError) throw sessionsError;
+        setHasCompletedChat(sessions && sessions.length > 0);
+
       } catch (error: any) {
         console.error("Error fetching data:", error);
         toast({
@@ -136,8 +152,16 @@ export const Profile = () => {
 
   return (
     <ProfileLayout>
-      <ProfileHeader profile={profile} />
-      <CategoriesGrid categories={categories} goals={goals} />
+      <ProfileHeader 
+        profile={profile} 
+        hasCompletedChat={hasCompletedChat}
+      />
+      <CategoriesGrid 
+        categories={categories} 
+        goals={goals}
+        hasCompletedChat={hasCompletedChat}
+        onStartChat={() => navigate('/vivid-vision')}
+      />
       <AddGoalDialog
         isOpen={isAddGoalOpen}
         onOpenChange={setIsAddGoalOpen}

@@ -11,13 +11,14 @@ interface Profile {
 
 interface ProfileHeaderProps {
   profile: Profile | null;
+  hasCompletedChat: boolean;
 }
 
-export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
+export const ProfileHeader = ({ profile, hasCompletedChat }: ProfileHeaderProps) => {
   return (
     <Card className="bg-white/10 border-white/20 backdrop-blur-sm text-white">
       <CardHeader className="space-y-6">
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
           <Avatar className="h-20 w-20">
             {profile?.avatar_url ? (
               <AvatarImage src={profile.avatar_url} alt={`${profile.first_name}'s avatar`} />
@@ -35,7 +36,11 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
           </div>
         </div>
         <div className="text-xl text-white/90">
-          Hi {profile?.first_name || 'there'}! Let's build the life you envision. Here's your current progress.
+          {hasCompletedChat ? (
+            `Welcome back, ${profile?.first_name || 'there'}! Let's keep building your Dream Tuesday.`
+          ) : (
+            `Your Dream Tuesday starts here! Chat with Jaxon to create your personalized plan.`
+          )}
         </div>
       </CardHeader>
     </Card>

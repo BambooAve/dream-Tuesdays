@@ -13,13 +13,15 @@ import {
   Palette, 
   Group, 
   Sun,
-  LucideIcon
+  LucideIcon,
+  ArrowRight
 } from "lucide-react";
 
 interface CategoryCardProps {
   category: Category;
   goals: Goal[];
   isFirst?: boolean;
+  hasCompletedChat: boolean;
 }
 
 const getCategoryIcon = (type: string): LucideIcon => {
@@ -38,11 +40,36 @@ const getCategoryIcon = (type: string): LucideIcon => {
   return icons[type] || BookOpen;
 };
 
-export const CategoryCard = ({ category, goals, isFirst }: CategoryCardProps) => {
+const getCategoryDescription = (type: string): string => {
+  const descriptions: Record<string, string> = {
+    HEALTH_AND_WELLNESS: "Set goals for fitness, nutrition, and mental health.",
+    CAREER_AND_PROFESSIONAL_GROWTH: "Advance your career and professional skills.",
+    FINANCIAL_GOALS: "Build wealth and achieve financial freedom.",
+    PERSONAL_DEVELOPMENT: "Grow personally and develop new skills.",
+    RELATIONSHIPS_AND_SOCIAL_LIFE: "Strengthen relationships and social connections.",
+    TRAVEL_AND_ADVENTURE: "Explore new places and create memories.",
+    HABITS_AND_LIFESTYLE_CHANGES: "Build positive habits and lifestyle changes.",
+    CREATIVITY_AND_EXPRESSION: "Express yourself through creative pursuits.",
+    COMMUNITY_AND_CONTRIBUTION: "Make a positive impact in your community.",
+    SPIRITUALITY_AND_PURPOSE: "Discover purpose and spiritual growth.",
+  };
+  return descriptions[type] || "Set and achieve your goals in this category.";
+};
+
+export const CategoryCard = ({ 
+  category, 
+  goals, 
+  isFirst,
+  hasCompletedChat 
+}: CategoryCardProps) => {
   const Icon = getCategoryIcon(category.type);
 
   return (
-    <Card className={`bg-white/10 border-white/20 backdrop-blur-sm text-white ${isFirst ? 'col-span-full' : ''}`}>
+    <Card 
+      className={`group bg-white/10 border-white/20 backdrop-blur-sm text-white transition-all duration-300 hover:bg-white/15 ${
+        isFirst ? 'col-span-full' : ''
+      }`}
+    >
       <CardHeader>
         <div className="flex items-center gap-2">
           <Icon className="h-5 w-5 text-white/80" />
@@ -50,17 +77,24 @@ export const CategoryCard = ({ category, goals, isFirst }: CategoryCardProps) =>
         </div>
       </CardHeader>
       <CardContent>
-        {goals.length > 0 ? (
-          <div className="space-y-4">
-            {goals.map((goal) => (
-              <GoalCard key={goal.id} goal={goal} />
-            ))}
-          </div>
-        ) : isFirst ? (
-          <EmptyState />
+        {hasCompletedChat ? (
+          goals.length > 0 ? (
+            <div className="space-y-4">
+              {goals.map((goal) => (
+                <GoalCard key={goal.id} goal={goal} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-white/60">
+              No goals set yet for this category
+            </div>
+          )
         ) : (
-          <div className="text-center py-6 text-white/60">
-            No goals set yet for this category
+          <div className="space-y-4">
+            <p className="text-white/80">{getCategoryDescription(category.type)}</p>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm text-teal flex items-center gap-1">
+              Add Goals with Jaxon <ArrowRight className="h-4 w-4" />
+            </div>
           </div>
         )}
       </CardContent>
