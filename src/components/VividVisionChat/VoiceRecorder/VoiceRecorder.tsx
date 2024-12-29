@@ -30,7 +30,16 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
         }
       });
       
-      const mediaRecorder = new MediaRecorder(stream);
+      // Check if the browser supports the webm codec
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : 'audio/mp4';
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        audioBitsPerSecond: 128000
+      });
+      
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -41,7 +50,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(chunksRef.current, { type: mimeType });
         await handleAudioUpload(audioBlob);
         stream.getTracks().forEach(track => track.stop());
       };
@@ -69,7 +78,9 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
   const handleAudioUpload = async (audioBlob: Blob) => {
     try {
       const formData = new FormData();
-      formData.append('audio', audioBlob);
+      // Add file extension based on mime type
+      const fileExtension = audioBlob.type.includes('webm') ? 'webm' : 'mp4';
+      formData.append('audio', audioBlob, `recording.${fileExtension}`);
       formData.append('sessionId', sessionId);
 
       const { data: { session } } = await supabase.auth.getSession();
