@@ -113,7 +113,7 @@ export const ChatInput = ({
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your message..."
-                    className="border-0 focus-visible:ring-0 resize-none overflow-y-auto min-h-[44px] max-h-[120px] rounded-2xl"
+                    className="border-0 focus-visible:ring-0 resize-none overflow-y-auto min-h-[44px] max-h-[120px] rounded-2xl text-black w-full"
                     rows={1}
                   />
                 </div>
