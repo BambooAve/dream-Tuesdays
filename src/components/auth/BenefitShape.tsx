@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import p5 from "p5";
 
 interface BenefitShapeProps {
-  type: "sphere" | "cube" | "pyramid";
+  type: "sphere" | "cube" | "pyramid" | "torus" | "cylinder";
 }
 
 export const BenefitShape = ({ type }: BenefitShapeProps) => {
@@ -27,7 +27,7 @@ export const BenefitShape = ({ type }: BenefitShapeProps) => {
         p.ambientLight(100);
         p.directionalLight(255, 255, 255, 0, 0, 1);
         
-        p.fill(255, 127, 80);
+        p.fill(255, 100, 51); // #FF6433
         
         switch (type) {
           case "sphere":
@@ -38,6 +38,12 @@ export const BenefitShape = ({ type }: BenefitShapeProps) => {
             break;
           case "pyramid":
             p.cone(30, 50, 4, 1);
+            break;
+          case "torus":
+            p.torus(20, 10);
+            break;
+          case "cylinder":
+            p.cylinder(20, 40);
             break;
         }
         

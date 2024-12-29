@@ -22,13 +22,13 @@ const features = [
   },
   {
     title: "Motivational Messages",
-    shape: "sphere" as const,
+    shape: "torus" as const,
     description: "Stay inspired with tailored encouragements.",
     details: "Receive personalized motivation exactly when you need it most."
   },
   {
     title: "Habit Builder",
-    shape: "cube" as const,
+    shape: "cylinder" as const,
     description: "Build habits that stick and drive lasting change.",
     details: "Create and maintain positive habits with our proven system."
   }
