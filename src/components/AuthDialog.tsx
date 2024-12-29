@@ -40,14 +40,34 @@ export const AuthDialog = ({
       const { identifier, password } = values;
       
       if (isSignUp) {
-        const { user } = await createUserWithMetadata(identifier, password, authMethod === "email");
-        
-        if (user) {
-          // Redirect to profile completion if profile is not complete
-          const isProfileComplete = await checkProfileCompletion(user.id);
-          if (!isProfileComplete) {
-            navigate("/complete-profile");
+        try {
+          const { user } = await createUserWithMetadata(identifier, password, authMethod === "email");
+          
+          if (user) {
+            // Redirect to profile completion if profile is not complete
+            const isProfileComplete = await checkProfileCompletion(user.id);
+            if (!isProfileComplete) {
+              navigate("/complete-profile");
+            }
           }
+
+          toast({
+            title: "Account created!",
+            description: "Please check your email for verification.",
+          });
+        } catch (error: any) {
+          // Check if it's a user already exists error
+          if (error.message?.includes("User already registered") || 
+              error.body?.includes("user_already_exists")) {
+            toast({
+              variant: "destructive",
+              title: "Account already exists",
+              description: "Please sign in instead.",
+            });
+            setIsSignUp(false); // Switch to sign in mode
+            return;
+          }
+          throw error; // Re-throw other errors
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword(
@@ -56,14 +76,12 @@ export const AuthDialog = ({
             : { phone: identifier, password }
         );
         if (error) throw error;
-      }
 
-      toast({
-        title: isSignUp ? "Account created!" : "Welcome back!",
-        description: isSignUp 
-          ? "Please check your email for verification." 
-          : "You've successfully signed in.",
-      });
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
+      }
       
       onClose();
     } catch (error: any) {
