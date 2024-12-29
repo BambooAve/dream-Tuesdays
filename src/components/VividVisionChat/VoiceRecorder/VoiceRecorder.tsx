@@ -8,9 +8,10 @@ interface VoiceRecorderProps {
   sessionId: string;
   onTranscription: (text: string) => void;
   disabled?: boolean;
+  children: (isRecording: boolean) => React.ReactNode;
 }
 
-export const VoiceRecorder = ({ sessionId, onTranscription, disabled }: VoiceRecorderProps) => {
+export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }: VoiceRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -86,18 +87,21 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled }: VoiceRec
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className={`text-white hover:bg-white/10 ${isRecording ? 'bg-red-500/20' : ''}`}
-      onClick={isRecording ? stopRecording : startRecording}
-      disabled={disabled}
-    >
-      {isRecording ? (
-        <Square className="h-5 w-5 text-red-500" />
-      ) : (
-        <Mic className="h-5 w-5" />
-      )}
-    </Button>
+    <div className="flex-1 flex gap-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`text-white hover:bg-white/10 ${isRecording ? 'bg-red-500/20' : ''}`}
+        onClick={isRecording ? stopRecording : startRecording}
+        disabled={disabled}
+      >
+        {isRecording ? (
+          <Square className="h-5 w-5 text-red-500" />
+        ) : (
+          <Mic className="h-5 w-5" />
+        )}
+      </Button>
+      {children(isRecording)}
+    </div>
   );
 };

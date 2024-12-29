@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VoiceRecorder } from "./VoiceRecorder/VoiceRecorder";
+import { AudioWaveform } from "lucide-react";
 
 interface ChatInputProps {
   input: string;
@@ -28,14 +29,37 @@ export const ChatInput = ({
           sessionId={sessionId}
           onTranscription={handleTranscription}
           disabled={isLoading}
-        />
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-          placeholder="Type your message..."
-          className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-        />
+        >
+          {(isRecording) => (
+            <>
+              {isRecording ? (
+                <div className="flex-1 bg-white/10 rounded-lg px-4 py-2 flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {[...Array(3)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1 bg-red-500 rounded-full animate-pulse"
+                        style={{
+                          height: `${Math.random() * 16 + 8}px`,
+                          animationDelay: `${i * 0.15}s`
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-white/60 text-sm">Recording...</span>
+                </div>
+              ) : (
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  placeholder="Type your message..."
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                />
+              )}
+            </>
+          )}
+        </VoiceRecorder>
         <Button
           onClick={handleSendMessage}
           disabled={isLoading}
