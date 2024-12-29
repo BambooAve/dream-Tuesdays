@@ -32,7 +32,7 @@ export const ChatInput = ({
       textareaRef.current.style.height = `${Math.min(scrollHeight, 120)}px`; // Max height of 120px
       
       // Update the padding bottom of the messages container
-      const messagesContainer = document.querySelector('.messages-container');
+      const messagesContainer = document.querySelector('.messages-container') as HTMLDivElement;
       if (messagesContainer) {
         const inputHeight = Math.min(scrollHeight, 120);
         messagesContainer.style.paddingBottom = `${inputHeight + 32}px`; // 32px for padding

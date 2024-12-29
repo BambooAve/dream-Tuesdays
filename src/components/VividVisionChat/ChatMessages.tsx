@@ -11,7 +11,7 @@ interface ChatMessagesProps {
 export const ChatMessages = ({ messages, typingMessage, onTypingComplete }: ChatMessagesProps) => {
   return (
     <div className="flex flex-col h-[calc(100vh-88px)] pt-20">
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 messages-container">
         <div className="max-w-2xl mx-auto space-y-4">
           {messages.map((message, index) => {
             const showTimestamp = index === 0 || 
