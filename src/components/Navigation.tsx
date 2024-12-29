@@ -33,20 +33,22 @@ export const Navigation = () => {
           setUser(currentUser);
 
           if (currentUser && !isLoggingOut) {
-            // Check if profile is complete
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('first_name')
-              .eq('id', currentUser.id)
-              .single();
+            // Only check profile completion if we're not on the complete-profile page
+            if (location.pathname !== '/complete-profile') {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('first_name')
+                .eq('id', currentUser.id)
+                .single();
 
-            // Only redirect to profile completion if profile is incomplete
-            if (!profile?.first_name && location.pathname !== '/complete-profile') {
-              navigate("/complete-profile");
-            } else if (profile?.first_name && location.pathname === '/complete-profile') {
-              // If profile is complete and we're on complete-profile page, redirect to profile
-              navigate("/profile");
+              // Only redirect to profile completion if profile is incomplete
+              if (!profile?.first_name) {
+                navigate("/complete-profile");
+              }
             }
+          } else if (!currentUser && location.pathname === '/complete-profile') {
+            // If there's no user and we're on the complete-profile page, redirect to home
+            navigate("/");
           }
         });
 

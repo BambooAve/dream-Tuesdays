@@ -9,13 +9,27 @@ export const ProfileCompletion = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
+    const checkAccess = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/");
+        return;
+      }
+
+      // Check if profile is already complete
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.first_name) {
+        // If profile is complete, redirect to profile page
+        navigate("/profile");
       }
     };
-    checkSession();
+    
+    checkAccess();
   }, [navigate]);
 
   return (
