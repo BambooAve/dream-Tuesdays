@@ -5,6 +5,7 @@ import { ChatMessages } from "./ChatMessages";
 import { ProgressBar } from "./ProgressBar";
 import { ChatCompletion } from "./ChatCompletion";
 import { WelcomeScreen } from "./WelcomeScreen";
+import { AnimatedBackground } from "./AnimatedBackground";
 import { supabase } from "@/integrations/supabase/client";
 import { Message, Session } from "@/types/supabase";
 import { Button } from "@/components/ui/button";
@@ -98,7 +99,8 @@ export const VividVisionChat = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-black to-gray-900 text-white">
+    <div className="fixed inset-0 bg-gradient-to-b from-brand-orange to-black text-white overflow-hidden">
+      <AnimatedBackground />
       <div className="absolute top-4 right-4 z-50">
         <Button
           variant="ghost"
