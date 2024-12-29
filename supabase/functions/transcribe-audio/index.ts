@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -21,12 +22,14 @@ serve(async (req) => {
       throw new Error('No audio file provided');
     }
 
+    console.log('Received audio file:', audioFile.name, 'Size:', audioFile.size);
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get current user
+    // Get current user from auth header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
@@ -46,6 +49,7 @@ serve(async (req) => {
     whisperFormData.append('model', 'whisper-1');
     whisperFormData.append('language', 'en');
 
+    console.log('Sending to Whisper API...');
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
@@ -55,11 +59,17 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Whisper API error: ${response.status}`);
+      const errorData = await response.text();
+      console.error('Whisper API error:', errorData);
+      throw new Error(`Whisper API error: ${response.status} - ${errorData}`);
     }
 
     const result = await response.json();
     console.log('Transcription result:', result);
+
+    if (!result.text) {
+      throw new Error('No transcription text received from Whisper API');
+    }
 
     // Store transcription in database
     const { error: transcriptionError } = await supabase
@@ -71,6 +81,7 @@ serve(async (req) => {
       });
 
     if (transcriptionError) {
+      console.error('Database error:', transcriptionError);
       throw transcriptionError;
     }
 
@@ -85,7 +96,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing audio:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

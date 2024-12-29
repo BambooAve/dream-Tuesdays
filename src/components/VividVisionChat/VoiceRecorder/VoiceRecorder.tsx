@@ -22,7 +22,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
-          sampleRate: 24000,
+          sampleRate: 48000,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
@@ -30,10 +30,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
         }
       });
       
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm'
-      });
-      
+      const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -49,7 +46,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start(1000); // Collect data every second
+      mediaRecorder.start();
       setIsRecording(true);
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -72,7 +69,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
   const handleAudioUpload = async (audioBlob: Blob) => {
     try {
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
+      formData.append('audio', audioBlob);
       formData.append('sessionId', sessionId);
 
       const { data: { session } } = await supabase.auth.getSession();
@@ -81,22 +78,24 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
       console.log('Sending audio for transcription...');
       const { data, error } = await supabase.functions.invoke('transcribe-audio', {
         body: formData,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Transcription error:', error);
+        throw error;
+      }
       
       console.log('Transcription response:', data);
       if (data.transcription) {
         onTranscription(data.transcription);
+      } else {
+        throw new Error('No transcription received');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading audio:', error);
       toast({
         title: "Error",
-        description: "Failed to process voice recording. Please try again.",
+        description: error.message || "Failed to process voice recording. Please try again.",
         variant: "destructive",
       });
     } finally {
