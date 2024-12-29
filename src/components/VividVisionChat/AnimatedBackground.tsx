@@ -8,24 +8,28 @@ export const AnimatedBackground = () => {
     if (!containerRef.current) return;
 
     const sketch = (p: p5) => {
-      const particles: Array<{
+      const shapes: Array<{
         x: number;
         y: number;
+        rotation: number;
         size: number;
         speed: number;
+        type: 'triangle' | 'square';
       }> = [];
       
       p.setup = () => {
         const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
         canvas.parent(containerRef.current!);
         
-        // Create initial particles
-        for (let i = 0; i < 50; i++) {
-          particles.push({
+        // Create initial shapes
+        for (let i = 0; i < 30; i++) {
+          shapes.push({
             x: p.random(p.width),
             y: p.random(p.height),
-            size: p.random(2, 6),
-            speed: p.random(0.2, 1)
+            rotation: p.random(p.TWO_PI),
+            size: p.random(10, 30),
+            speed: p.random(0.2, 1),
+            type: p.random() > 0.5 ? 'triangle' : 'square'
           });
         }
       };
@@ -33,18 +37,33 @@ export const AnimatedBackground = () => {
       p.draw = () => {
         p.clear();
         
-        particles.forEach(particle => {
+        shapes.forEach(shape => {
+          p.push();
+          p.translate(shape.x, shape.y);
+          p.rotate(shape.rotation);
           p.noStroke();
-          p.fill(255, 255, 255, 30);
-          p.circle(particle.x, particle.y, particle.size);
+          p.fill(255, 255, 255, 15);
           
-          // Move particle up
-          particle.y -= particle.speed;
+          if (shape.type === 'triangle') {
+            p.triangle(
+              -shape.size/2, shape.size/2,
+              shape.size/2, shape.size/2,
+              0, -shape.size/2
+            );
+          } else {
+            p.rect(-shape.size/2, -shape.size/2, shape.size, shape.size);
+          }
           
-          // Reset particle position when it goes off screen
-          if (particle.y < -10) {
-            particle.y = p.height + 10;
-            particle.x = p.random(p.width);
+          p.pop();
+          
+          // Move shape up
+          shape.y -= shape.speed;
+          shape.rotation += 0.01;
+          
+          // Reset shape position when it goes off screen
+          if (shape.y < -shape.size) {
+            shape.y = p.height + shape.size;
+            shape.x = p.random(p.width);
           }
         });
       };

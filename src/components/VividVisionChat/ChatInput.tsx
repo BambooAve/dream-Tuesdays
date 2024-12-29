@@ -56,6 +56,17 @@ export const ChatInput = ({
         >
           {(isRecording, isProcessing) => (
             <div className="flex gap-2 items-end">
+              <div className="flex-1 bg-white rounded-2xl shadow-lg">
+                <Textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message..."
+                  className="border-0 focus-visible:ring-0 resize-none overflow-y-auto min-h-[44px] max-h-[120px] rounded-2xl text-black w-full"
+                  rows={1}
+                />
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
@@ -83,40 +94,6 @@ export const ChatInput = ({
                   <AudioWaveform className="h-5 w-5" />
                 )}
               </Button>
-              {isRecording ? (
-                <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-1 bg-red-500 rounded-full animate-pulse"
-                        style={{
-                          height: `${Math.random() * 16 + 8}px`,
-                          animationDelay: `${i * 0.15}s`
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-white/60 text-sm">Recording...</span>
-                </div>
-              ) : isProcessing ? (
-                <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-teal" />
-                  <span className="text-white/60 text-sm">Processing audio...</span>
-                </div>
-              ) : (
-                <div className="flex-1 bg-white rounded-2xl shadow-lg">
-                  <Textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type your message..."
-                    className="border-0 focus-visible:ring-0 resize-none overflow-y-auto min-h-[44px] max-h-[120px] rounded-2xl text-black w-full"
-                    rows={1}
-                  />
-                </div>
-              )}
               <Button
                 onClick={handleSendMessage}
                 disabled={isLoading || !input.trim()}
