@@ -41,15 +41,15 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
-      <div className="max-w-2xl mx-auto flex gap-2 items-end">
+    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent">
+      <div className="max-w-2xl mx-auto p-4">
         <VoiceRecorder
           sessionId={sessionId}
           onTranscription={handleTranscription}
           disabled={isLoading}
         >
           {(isRecording, isProcessing) => (
-            <>
+            <div className="flex gap-2 items-end">
               {isRecording ? (
                 <div className="flex-1 bg-white/10 rounded-lg px-4 py-2 flex items-center gap-2">
                   <div className="flex items-center gap-1">
@@ -78,20 +78,20 @@ export const ChatInput = ({
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[44px] max-h-[120px] resize-none overflow-y-auto"
+                  className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[44px] max-h-[120px] resize-none overflow-y-auto"
                   rows={1}
                 />
               )}
-            </>
+              <Button
+                onClick={handleSendMessage}
+                disabled={isLoading || !input.trim()}
+                className="bg-teal hover:bg-teal/90 shrink-0"
+              >
+                Send
+              </Button>
+            </div>
           )}
         </VoiceRecorder>
-        <Button
-          onClick={handleSendMessage}
-          disabled={isLoading || !input.trim()}
-          className="bg-teal hover:bg-teal/90 shrink-0"
-        >
-          Send
-        </Button>
       </div>
     </div>
   );
