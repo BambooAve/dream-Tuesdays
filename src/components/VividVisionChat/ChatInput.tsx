@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { VoiceRecorder } from "./VoiceRecorder/VoiceRecorder";
 import { AudioWaveform, Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface ChatInputProps {
   input: string;
@@ -18,8 +19,24 @@ export const ChatInput = ({
   isLoading,
   sessionId 
 }: ChatInputProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleTranscription = (text: string) => {
     setInput(prev => prev + (prev ? ' ' : '') + text);
+  };
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
@@ -54,12 +71,14 @@ export const ChatInput = ({
                   <span className="text-white/60 text-sm">Processing audio...</span>
                 </div>
               ) : (
-                <Input
+                <Textarea
+                  ref={textareaRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[44px] max-h-[200px] resize-none"
+                  rows={1}
                 />
               )}
             </>

@@ -7,8 +7,12 @@ import { ChatCompletion } from "./ChatCompletion";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { Message, Session } from "@/types/supabase";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const VividVisionChat = () => {
+  const navigate = useNavigate();
   const {
     messages,
     setMessages,
@@ -85,6 +89,16 @@ export const VividVisionChat = () => {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-black to-gray-900 text-white overflow-hidden">
+      <div className="absolute top-4 right-4 z-50">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-white/10 rounded-full"
+          onClick={() => navigate('/profile')}
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
       {session && <ProgressBar progress={session.progress} />}
       <ChatMessages 
         messages={messages} 

@@ -20,8 +20,19 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          sampleRate: 24000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm'
+      });
       
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
@@ -33,12 +44,12 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         await handleAudioUpload(audioBlob);
         stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000); // Collect data every second
       setIsRecording(true);
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -54,19 +65,20 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      setIsProcessing(true); // Set processing state when recording stops
+      setIsProcessing(true);
     }
   };
 
   const handleAudioUpload = async (audioBlob: Blob) => {
     try {
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.wav');
+      formData.append('audio', audioBlob, 'recording.webm');
       formData.append('sessionId', sessionId);
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No session found');
 
+      console.log('Sending audio for transcription...');
       const { data, error } = await supabase.functions.invoke('transcribe-audio', {
         body: formData,
         headers: {
@@ -75,6 +87,8 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
       });
 
       if (error) throw error;
+      
+      console.log('Transcription response:', data);
       if (data.transcription) {
         onTranscription(data.transcription);
       }
@@ -86,7 +100,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
         variant: "destructive",
       });
     } finally {
-      setIsProcessing(false); // Clear processing state when done
+      setIsProcessing(false);
     }
   };
 
