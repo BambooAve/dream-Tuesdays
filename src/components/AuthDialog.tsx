@@ -9,6 +9,7 @@ import { AuthForm } from "./Auth/AuthForm";
 import { SignUpContent } from "./Auth/SignUpContent";
 import { createUserWithMetadata, checkProfileCompletion } from "@/utils/auth";
 import { z } from "zod";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const authSchema = z.object({
   identifier: z.string().min(1, "Required"),
@@ -29,6 +30,7 @@ export const AuthDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(defaultToSignUp);
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
+  const isMobile = useIsMobile();
 
   const onSubmit = async (values: z.infer<typeof authSchema>) => {
     if (isLoading) return;
@@ -78,8 +80,8 @@ export const AuthDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[872px] p-0 gap-0">
-        <div className="grid sm:grid-cols-2">
+      <DialogContent className={`sm:max-w-[872px] p-0 gap-0 ${isMobile ? 'h-[90vh]' : ''}`}>
+        <div className={`grid sm:grid-cols-2 ${isMobile ? 'h-full overflow-y-auto' : ''}`}>
           <div className="p-6 bg-gradient-to-tl from-brand-orange via-brand-orange to-gray-100/20">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-center text-white">
