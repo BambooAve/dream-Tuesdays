@@ -56,15 +56,11 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         brand: {
-          orange: "#AA5E3B",
-          black: "#000000", 
+          primary: "#e15417",
+          secondary: "#053333",
           white: "#FFFFFF",
-          green: "#3BAA5E"
-        },
-        teal: {
-          light: "#E5F6F4",
-          DEFAULT: "#2DD4BF",
-          dark: "#0F766E",
+          gray: "#e6e6e6",
+          green: "#c4d6d3"
         },
       },
       keyframes: {
@@ -90,6 +86,9 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
         "fade-out": "fade-out 0.5s ease-out",
+      },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #e15417 0%, #ff8c4d 100%)',
       },
     },
   },
