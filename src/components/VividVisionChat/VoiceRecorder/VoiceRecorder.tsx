@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, Square } from "lucide-react";
+import { Mic, Square, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,11 +8,12 @@ interface VoiceRecorderProps {
   sessionId: string;
   onTranscription: (text: string) => void;
   disabled?: boolean;
-  children: (isRecording: boolean) => React.ReactNode;
+  children: (isRecording: boolean, isProcessing: boolean) => React.ReactNode;
 }
 
 export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }: VoiceRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
@@ -53,6 +54,7 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      setIsProcessing(true); // Set processing state when recording stops
     }
   };
 
@@ -83,6 +85,8 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
         description: "Failed to process voice recording. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false); // Clear processing state when done
     }
   };
 
@@ -93,15 +97,17 @@ export const VoiceRecorder = ({ sessionId, onTranscription, disabled, children }
         size="icon"
         className={`text-white hover:bg-white/10 ${isRecording ? 'bg-red-500/20' : ''}`}
         onClick={isRecording ? stopRecording : startRecording}
-        disabled={disabled}
+        disabled={disabled || isProcessing}
       >
         {isRecording ? (
           <Square className="h-5 w-5 text-red-500" />
+        ) : isProcessing ? (
+          <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
           <Mic className="h-5 w-5" />
         )}
       </Button>
-      {children(isRecording)}
+      {children(isRecording, isProcessing)}
     </div>
   );
 };

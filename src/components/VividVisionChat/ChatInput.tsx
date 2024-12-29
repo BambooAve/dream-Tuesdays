@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VoiceRecorder } from "./VoiceRecorder/VoiceRecorder";
-import { AudioWaveform } from "lucide-react";
+import { AudioWaveform, Loader2 } from "lucide-react";
 
 interface ChatInputProps {
   input: string;
@@ -30,7 +30,7 @@ export const ChatInput = ({
           onTranscription={handleTranscription}
           disabled={isLoading}
         >
-          {(isRecording) => (
+          {(isRecording, isProcessing) => (
             <>
               {isRecording ? (
                 <div className="flex-1 bg-white/10 rounded-lg px-4 py-2 flex items-center gap-2">
@@ -47,6 +47,11 @@ export const ChatInput = ({
                     ))}
                   </div>
                   <span className="text-white/60 text-sm">Recording...</span>
+                </div>
+              ) : isProcessing ? (
+                <div className="flex-1 bg-white/10 rounded-lg px-4 py-2 flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-teal" />
+                  <span className="text-white/60 text-sm">Processing audio...</span>
                 </div>
               ) : (
                 <Input
