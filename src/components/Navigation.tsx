@@ -28,21 +28,12 @@ export const Navigation = () => {
 
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        } = supabase.auth.onAuthStateChange((_event, session) => {
           const currentUser = session?.user ?? null;
           setUser(currentUser);
 
           if (currentUser && !isLoggingOut) {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("first_name")
-              .eq("id", currentUser.id)
-              .maybeSingle();
-
-            if (!profile?.first_name && location.pathname !== '/complete-profile') {
-              navigate("/complete-profile");
-              return;
-            }
+            navigate("/complete-profile");
           }
         });
 
@@ -56,7 +47,7 @@ export const Navigation = () => {
     };
 
     initializeAuth();
-  }, [navigate, location.pathname, isLoggingOut]);
+  }, [navigate, isLoggingOut]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
