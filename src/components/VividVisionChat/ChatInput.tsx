@@ -48,7 +48,7 @@ export const ChatInput = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent">
-      <div className="max-w-2xl mx-auto p-4">
+      <div className="max-w-4xl mx-auto p-4">
         <VoiceRecorder
           sessionId={sessionId}
           onTranscription={handleTranscription}
@@ -62,7 +62,6 @@ export const ChatInput = ({
                 className={`shrink-0 text-white hover:bg-white/10 rounded-full w-11 h-11 ${
                   isRecording ? 'bg-red-500/20 animate-pulse' : ''
                 }`}
-                onClick={isRecording ? undefined : undefined}
                 disabled={isLoading || isProcessing}
               >
                 {isRecording ? (

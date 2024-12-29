@@ -12,7 +12,7 @@ export const ChatMessages = ({ messages, typingMessage, onTypingComplete }: Chat
   return (
     <div className="flex flex-col h-[calc(100vh-88px)] pt-20">
       <div className="flex-1 overflow-y-auto px-4 pb-4 messages-container">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
           {messages.map((message, index) => {
             const showTimestamp = index === 0 || 
               new Date(message.created_at).getTime() - 
