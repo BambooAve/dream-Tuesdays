@@ -22,30 +22,20 @@ export const checkProfileCompletion = async (userId: string) => {
 
 export const createUserWithMetadata = async (
   identifier: string, 
-  password: string, 
-  isEmail: boolean
+  password: string
 ) => {
   try {
-    // Directly attempt to sign up the user
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      ...(isEmail 
-        ? { email: identifier } 
-        : { phone: identifier }
-      ),
+      email: `${identifier}@temporary.com`,
       password,
       options: {
         data: {
-          ...(isEmail ? { email: identifier } : { phone: identifier })
+          username: identifier
         }
       }
     });
 
     if (signUpError) {
-      // Check if error indicates user already exists
-      if (signUpError.message?.includes("User already registered") ||
-          signUpError.message?.includes("user already exists")) {
-        throw new Error("User already registered");
-      }
       throw signUpError;
     }
     
@@ -53,7 +43,6 @@ export const createUserWithMetadata = async (
       throw new Error("No user returned from sign up");
     }
 
-    // Return the user data
     return { user: signUpData.user };
   } catch (error) {
     console.error("Error in createUserWithMetadata:", error);

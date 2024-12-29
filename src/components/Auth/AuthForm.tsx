@@ -13,12 +13,12 @@ const authSchema = z.object({
 
 type AuthFormProps = {
   isSignUp: boolean;
-  authMethod: "email" | "phone";
   isLoading: boolean;
   onSubmit: (values: z.infer<typeof authSchema>) => Promise<void>;
+  authMethod: "username";
 };
 
-export const AuthForm = ({ isSignUp, authMethod, isLoading, onSubmit }: AuthFormProps) => {
+export const AuthForm = ({ isSignUp, isLoading, onSubmit }: AuthFormProps) => {
   const form = useForm<z.infer<typeof authSchema>>({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -35,11 +35,11 @@ export const AuthForm = ({ isSignUp, authMethod, isLoading, onSubmit }: AuthForm
           name="identifier"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-white">{authMethod === "email" ? "Email" : "Phone"}</FormLabel>
+              <FormLabel className="text-white">Username</FormLabel>
               <FormControl>
                 <Input
-                  type={authMethod === "email" ? "email" : "tel"}
-                  placeholder={authMethod === "email" ? "Enter your email" : "Enter your phone number"}
+                  type="text"
+                  placeholder="Enter your username"
                   disabled={isLoading}
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   {...field}

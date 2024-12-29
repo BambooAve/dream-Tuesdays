@@ -29,7 +29,6 @@ export const AuthDialog = ({
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(defaultToSignUp);
-  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const isMobile = useIsMobile();
 
   const onSubmit = async (values: z.infer<typeof authSchema>) => {
@@ -41,7 +40,7 @@ export const AuthDialog = ({
       
       if (isSignUp) {
         try {
-          const { user } = await createUserWithMetadata(identifier, password, authMethod === "email");
+          const { user } = await createUserWithMetadata(identifier, password);
           
           if (user) {
             // Redirect to profile completion if profile is not complete
@@ -53,40 +52,31 @@ export const AuthDialog = ({
 
           toast({
             title: "Account created!",
-            description: "Please check your email for verification.",
+            description: "You can now sign in with your username.",
           });
           onClose();
         } catch (error: any) {
-          // Check if it's a user already exists error
-          if (error.message?.includes("User already registered") || 
-              error.message?.includes("user already exists")) {
-            toast({
-              variant: "destructive",
-              title: "Account already exists",
-              description: "Please sign in instead.",
-            });
-            setIsSignUp(false); // Switch to sign in mode
-            return;
-          }
-          throw error;
+          console.error("Signup error:", error);
+          toast({
+            variant: "destructive",
+            title: "Error creating account",
+            description: error.message || "Please try again with a different username",
+          });
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword(
-          authMethod === "email" 
-            ? { email: identifier, password }
-            : { phone: identifier, password }
-        );
+        const { error } = await supabase.auth.signInWithPassword({
+          email: `${identifier}@temporary.com`,
+          password
+        });
         
         if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast({
-              variant: "destructive",
-              title: "Invalid credentials",
-              description: "Please check your email and password.",
-            });
-            return;
-          }
-          throw error;
+          console.error("Login error:", error);
+          toast({
+            variant: "destructive",
+            title: "Invalid credentials",
+            description: "Please check your username and password.",
+          });
+          return;
         }
 
         toast({
@@ -118,29 +108,12 @@ export const AuthDialog = ({
               </DialogTitle>
             </DialogHeader>
 
-            <Tabs value={authMethod} onValueChange={(value) => setAuthMethod(value as "email" | "phone")} className="mt-4">
-              <TabsList className="grid w-full grid-cols-2 bg-white/10">
-                <TabsTrigger 
-                  value="email"
-                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white"
-                >
-                  Email
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="phone"
-                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white"
-                >
-                  Phone
-                </TabsTrigger>
-              </TabsList>
-
-              <AuthForm
-                isSignUp={isSignUp}
-                authMethod={authMethod}
-                isLoading={isLoading}
-                onSubmit={onSubmit}
-              />
-            </Tabs>
+            <AuthForm
+              isSignUp={isSignUp}
+              isLoading={isLoading}
+              onSubmit={onSubmit}
+              authMethod="username"
+            />
 
             <Button
               type="button"
