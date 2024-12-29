@@ -23,9 +23,9 @@ export const Hero = () => {
       <div className="absolute inset-0 bg-black/30 pointer-events-none" />
       <div className="container mx-auto px-4 py-20 text-center animate-fade-in relative z-10">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight text-white">
-          Craft Your Vision.
+          Design a life you don't
           <br />
-          Achieve Your Goals.
+          need to escape from.
         </h1>
         <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8">
           A minimalist approach to setting and achieving your most ambitious goals.
