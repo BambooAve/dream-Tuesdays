@@ -16,7 +16,7 @@ interface ProfileHeaderProps {
 
 export const ProfileHeader = ({ profile, hasCompletedChat }: ProfileHeaderProps) => {
   return (
-    <Card className="bg-white/95 border-white/20 backdrop-blur-sm text-black">
+    <Card className="bg-white/95 border-white/20 backdrop-blur-sm">
       <CardHeader className="space-y-6">
         <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
           <Avatar className="h-20 w-20">

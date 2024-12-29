@@ -66,14 +66,14 @@ export const CategoryCard = ({
 
   return (
     <Card 
-      className={`group bg-white/10 border-white/20 backdrop-blur-sm text-white transition-all duration-300 hover:bg-white/15 ${
+      className={`group bg-white/95 border-white/20 backdrop-blur-sm hover:bg-white/100 transition-all duration-300 ${
         isFirst ? 'col-span-full' : ''
       }`}
     >
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Icon className="h-5 w-5 text-white/80" />
-          <h2 className="text-xl font-semibold">{category.name}</h2>
+          <Icon className="h-5 w-5 text-brand-primary" />
+          <h2 className="text-xl font-semibold text-black">{category.name}</h2>
         </div>
       </CardHeader>
       <CardContent>
@@ -85,14 +85,14 @@ export const CategoryCard = ({
               ))}
             </div>
           ) : (
-            <div className="text-center py-6 text-white/60">
+            <div className="text-center py-6 text-black/60">
               No goals set yet for this category
             </div>
           )
         ) : (
           <div className="space-y-4">
-            <p className="text-white/80">{getCategoryDescription(category.type)}</p>
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm text-teal flex items-center gap-1">
+            <p className="text-black/80">{getCategoryDescription(category.type)}</p>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm text-brand-primary flex items-center gap-1">
               Add Goals with Jaxon <ArrowRight className="h-4 w-4" />
             </div>
           </div>
