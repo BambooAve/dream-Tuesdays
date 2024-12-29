@@ -99,7 +99,7 @@ export const VividVisionChat = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-brand-orange to-black text-white overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-primary text-white overflow-hidden">
       <AnimatedBackground />
       <div className="absolute top-4 right-4 z-50">
         <Button

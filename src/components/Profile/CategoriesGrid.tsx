@@ -42,12 +42,12 @@ export const CategoriesGrid = ({
         <div className="mt-8 text-center">
           <Button
             onClick={onStartChat}
-            className="bg-brand-green hover:bg-brand-green/90 text-white px-8 py-6 text-lg rounded-full"
+            className="bg-brand-primary hover:bg-brand-primary/90 text-white px-8 py-6 text-lg rounded-full"
           >
             Start Your Journey with Jaxon
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <p className="mt-4 text-white/80">
+          <p className="mt-4 text-black/80">
             Transform your life one Dream Tuesday at a time.
           </p>
         </div>
