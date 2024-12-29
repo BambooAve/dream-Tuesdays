@@ -1,200 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { useState, useEffect, useRef } from "react";
+import { VoiceRecorder } from "./VoiceRecorder/VoiceRecorder";
 
 interface ChatInputProps {
   input: string;
   setInput: React.Dispatch<React.SetStateAction<string>>;
   handleSendMessage: () => void;
   isLoading: boolean;
+  sessionId: string;
 }
 
-export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: ChatInputProps) => {
-  const { toast } = useToast();
-  const [isRecording, setIsRecording] = useState(false);
-  const [ws, setWs] = useState<WebSocket | null>(null);
-  const audioRecorderRef = useRef<any>(null);
-
-  useEffect(() => {
-    return () => {
-      if (ws) {
-        ws.close();
-      }
-      if (audioRecorderRef.current) {
-        audioRecorderRef.current.stop();
-      }
-    };
-  }, [ws]);
-
-  const setupWebSocket = () => {
-    console.log('Setting up WebSocket connection...');
-    const wsUrl = `wss://rcahrolojfosvknoxiho.functions.supabase.co/functions/v1/realtime-chat`;
-    const newWs = new WebSocket(wsUrl);
-
-    newWs.onopen = () => {
-      console.log('WebSocket connected');
-      startRecording();
-    };
-
-    newWs.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log('Received WebSocket message:', data);
-        
-        if (data.type === 'transcript') {
-          console.log('Received transcript:', data.text);
-          setInput(prev => prev + ' ' + data.text);
-        } else if (data.type === 'error') {
-          console.error('WebSocket error:', data.message);
-          toast({
-            title: "Error",
-            description: data.message || "An error occurred with the voice service",
-            variant: "destructive",
-          });
-          setIsRecording(false);
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
-
-    newWs.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to connect to voice service. Please try again.",
-        variant: "destructive",
-      });
-      setIsRecording(false);
-    };
-
-    newWs.onclose = () => {
-      console.log('WebSocket connection closed');
-      if (isRecording) {
-        setIsRecording(false);
-        toast({
-          title: "Connection Closed",
-          description: "Voice service connection was closed",
-          variant: "default",
-        });
-      }
-    };
-
-    setWs(newWs);
-  };
-
-  const startRecording = async () => {
-    try {
-      console.log('Starting recording...');
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          sampleRate: 24000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
-      
-      const audioContext = new AudioContext({
-        sampleRate: 24000,
-      });
-      
-      const source = audioContext.createMediaStreamSource(stream);
-      const processor = audioContext.createScriptProcessor(4096, 1, 1);
-      
-      processor.onaudioprocess = (e) => {
-        if (ws?.readyState === WebSocket.OPEN) {
-          const inputData = e.inputBuffer.getChannelData(0);
-          const audioData = encodeAudioForAPI(new Float32Array(inputData));
-          ws.send(JSON.stringify({
-            type: 'input_audio_buffer.append',
-            audio: audioData
-          }));
-        }
-      };
-      
-      source.connect(processor);
-      processor.connect(audioContext.destination);
-      
-      audioRecorderRef.current = {
-        stream,
-        audioContext,
-        source,
-        processor,
-        stop: () => {
-          source.disconnect();
-          processor.disconnect();
-          stream.getTracks().forEach(track => track.stop());
-          audioContext.close();
-        }
-      };
-      
-      console.log('Recording started successfully');
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      toast({
-        title: "Error",
-        description: "Failed to access microphone. Please ensure microphone permissions are granted.",
-        variant: "destructive",
-      });
-      setIsRecording(false);
-    }
-  };
-
-  const handleVoiceInput = async () => {
-    if (isRecording) {
-      console.log('Stopping recording...');
-      setIsRecording(false);
-      if (ws) {
-        ws.close();
-      }
-      if (audioRecorderRef.current) {
-        audioRecorderRef.current.stop();
-      }
-    } else {
-      console.log('Starting voice input...');
-      setIsRecording(true);
-      setupWebSocket();
-    }
-  };
-
-  const encodeAudioForAPI = (float32Array: Float32Array): string => {
-    const int16Array = new Int16Array(float32Array.length);
-    for (let i = 0; i < float32Array.length; i++) {
-      const s = Math.max(-1, Math.min(1, float32Array[i]));
-      int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-    }
-    
-    const uint8Array = new Uint8Array(int16Array.buffer);
-    let binary = '';
-    const chunkSize = 0x8000;
-    
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-      binary += String.fromCharCode.apply(null, chunk);
-    }
-    
-    return btoa(binary);
+export const ChatInput = ({ 
+  input, 
+  setInput, 
+  handleSendMessage, 
+  isLoading,
+  sessionId 
+}: ChatInputProps) => {
+  const handleTranscription = (text: string) => {
+    setInput(prev => prev + (prev ? ' ' : '') + text);
   };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
       <div className="max-w-2xl mx-auto flex gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`text-white hover:bg-white/10 ${isRecording ? 'bg-red-500/20' : ''}`}
-          onClick={handleVoiceInput}
-        >
-          {isRecording ? (
-            <MicOff className="h-5 w-5 text-red-500" />
-          ) : (
-            <Mic className="h-5 w-5" />
-          )}
-        </Button>
+        <VoiceRecorder
+          sessionId={sessionId}
+          onTranscription={handleTranscription}
+          disabled={isLoading}
+        />
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}

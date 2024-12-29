@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audio_transcriptions: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          id: string
+          session_id: string
+          transcription: string
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          id?: string
+          session_id: string
+          transcription: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          id?: string
+          session_id?: string
+          transcription?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_transcriptions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "vivid_vision_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           color: string | null

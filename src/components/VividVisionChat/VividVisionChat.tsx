@@ -99,6 +99,7 @@ export const VividVisionChat = () => {
           setInput={setInput}
           handleSendMessage={handleSendMessage}
           isLoading={isLoading || !!typingMessage}
+          sessionId={session?.id || ''}
         />
       )}
     </div>
