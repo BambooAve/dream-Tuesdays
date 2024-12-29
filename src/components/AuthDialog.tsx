@@ -18,7 +18,7 @@ export const AuthDialog = ({
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         // Close the dialog
         onClose();
         
