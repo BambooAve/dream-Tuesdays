@@ -27,8 +27,9 @@ export const ChatInput = ({
 
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      textareaRef.current.style.height = '0px';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = `${Math.min(scrollHeight, 120)}px`; // Max height of 120px
     }
   }, [input]);
 
@@ -41,7 +42,7 @@ export const ChatInput = ({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
-      <div className="max-w-2xl mx-auto flex gap-2">
+      <div className="max-w-2xl mx-auto flex gap-2 items-end">
         <VoiceRecorder
           sessionId={sessionId}
           onTranscription={handleTranscription}
@@ -77,7 +78,7 @@ export const ChatInput = ({
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[44px] max-h-[200px] resize-none"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 min-h-[44px] max-h-[120px] resize-none overflow-y-auto"
                   rows={1}
                 />
               )}
@@ -86,8 +87,8 @@ export const ChatInput = ({
         </VoiceRecorder>
         <Button
           onClick={handleSendMessage}
-          disabled={isLoading}
-          className="bg-teal hover:bg-teal/90"
+          disabled={isLoading || !input.trim()}
+          className="bg-teal hover:bg-teal/90 shrink-0"
         >
           Send
         </Button>

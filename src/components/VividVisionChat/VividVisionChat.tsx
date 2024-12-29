@@ -10,9 +10,11 @@ import { Message, Session } from "@/types/supabase";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 export const VividVisionChat = () => {
   const navigate = useNavigate();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const {
     messages,
     setMessages,
@@ -39,6 +41,14 @@ export const VividVisionChat = () => {
     updateSessionProgress,
     completeSession
   );
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, typingMessage]);
 
   const handleStartChat = async (introMessage: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -105,6 +115,7 @@ export const VividVisionChat = () => {
         typingMessage={typingMessage}
         onTypingComplete={handleTypingComplete}
       />
+      <div ref={messagesEndRef} />
       {isChatComplete ? (
         <ChatCompletion sessionId={session?.id || ''} messages={messages} />
       ) : (

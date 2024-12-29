@@ -1,5 +1,6 @@
 import { Message } from "@/types/supabase";
 import { TypingAnimation } from "./TypingAnimation";
+import { format } from "date-fns";
 
 interface ChatMessagesProps {
   messages: Message[];
@@ -9,29 +10,43 @@ interface ChatMessagesProps {
 
 export const ChatMessages = ({ messages, typingMessage, onTypingComplete }: ChatMessagesProps) => {
   return (
-    <div className="absolute inset-0 pt-20 pb-24 overflow-y-auto px-4">
+    <div className="absolute inset-0 pt-20 pb-[88px] overflow-y-auto px-4">
       <div className="max-w-2xl mx-auto space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${
-              message.role === "assistant" ? "justify-start" : "justify-end"
-            }`}
-          >
-            <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2 animate-fade-in ${
-                message.role === "assistant"
-                  ? "bg-teal/10 text-white"
-                  : "bg-white/10 text-white"
-              }`}
-            >
-              {message.content}
+        {messages.map((message, index) => {
+          const showTimestamp = index === 0 || 
+            new Date(message.created_at).getTime() - 
+            new Date(messages[index - 1].created_at).getTime() > 300000; // 5 minutes
+
+          return (
+            <div key={message.id} className="space-y-1">
+              {showTimestamp && (
+                <div className="text-center">
+                  <span className="text-xs text-white/40 bg-white/5 px-2 py-1 rounded-full">
+                    {format(new Date(message.created_at), "MMM d, h:mm aa")}
+                  </span>
+                </div>
+              )}
+              <div
+                className={`flex ${
+                  message.role === "assistant" ? "justify-start" : "justify-end"
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 animate-fade-in transition-all ${
+                    message.role === "assistant"
+                      ? "bg-teal/10 text-white rounded-bl-none"
+                      : "bg-white/10 text-white rounded-br-none"
+                  }`}
+                >
+                  {message.content}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {typingMessage && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-2xl px-4 py-2 animate-fade-in bg-teal/10 text-white">
+            <div className="max-w-[80%] rounded-2xl px-4 py-2 animate-fade-in bg-teal/10 text-white rounded-bl-none">
               <TypingAnimation 
                 content={typingMessage} 
                 onComplete={onTypingComplete}
