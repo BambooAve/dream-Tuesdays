@@ -59,7 +59,7 @@ export const AuthDialog = ({
         } catch (error: any) {
           // Check if it's a user already exists error
           if (error.message?.includes("User already registered") || 
-              error.body?.includes("user_already_exists")) {
+              error.message?.includes("user already exists")) {
             toast({
               variant: "destructive",
               title: "Account already exists",
@@ -68,7 +68,7 @@ export const AuthDialog = ({
             setIsSignUp(false); // Switch to sign in mode
             return;
           }
-          throw error; // Re-throw other errors
+          throw error;
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword(
