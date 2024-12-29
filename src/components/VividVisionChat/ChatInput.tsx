@@ -29,7 +29,8 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
   }, [ws]);
 
   const setupWebSocket = () => {
-    const wsUrl = `wss://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.functions.supabase.co/functions/v1/realtime-chat`;
+    console.log('Setting up WebSocket connection...');
+    const wsUrl = `wss://rcahrolojfosvknoxiho.functions.supabase.co/functions/v1/realtime-chat`;
     const newWs = new WebSocket(wsUrl);
 
     newWs.onopen = () => {
@@ -38,9 +39,16 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
     };
 
     newWs.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'transcript') {
-        setInput(prev => prev + ' ' + data.text);
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received WebSocket message:', data);
+        
+        if (data.type === 'transcript') {
+          console.log('Received transcript:', data.text);
+          setInput(prev => prev + ' ' + data.text);
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
       }
     };
 
@@ -59,6 +67,7 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
 
   const startRecording = async () => {
     try {
+      console.log('Starting recording...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           sampleRate: 24000,
@@ -103,6 +112,7 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
         }
       };
       
+      console.log('Recording started successfully');
     } catch (error) {
       console.error('Error starting recording:', error);
       toast({
@@ -110,11 +120,13 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
         description: "Failed to access microphone",
         variant: "destructive",
       });
+      setIsRecording(false);
     }
   };
 
   const handleVoiceInput = async () => {
     if (isRecording) {
+      console.log('Stopping recording...');
       setIsRecording(false);
       if (ws) {
         ws.close();
@@ -123,6 +135,7 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
         audioRecorderRef.current.stop();
       }
     } else {
+      console.log('Starting voice input...');
       setIsRecording(true);
       setupWebSocket();
     }
