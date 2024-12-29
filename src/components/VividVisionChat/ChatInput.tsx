@@ -30,7 +30,8 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
 
   const setupWebSocket = () => {
     console.log('Setting up WebSocket connection...');
-    const wsUrl = `wss://rcahrolojfosvknoxiho.functions.supabase.co/functions/v1/realtime-chat`;
+    // Use the correct WebSocket URL with the project reference
+    const wsUrl = `wss://rcahrolojfosvknoxiho.functions.supabase.co/realtime-chat`;
     const newWs = new WebSocket(wsUrl);
 
     newWs.onopen = () => {
@@ -46,6 +47,14 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
         if (data.type === 'transcript') {
           console.log('Received transcript:', data.text);
           setInput(prev => prev + ' ' + data.text);
+        } else if (data.type === 'error') {
+          console.error('WebSocket error:', data.message);
+          toast({
+            title: "Error",
+            description: data.message || "An error occurred with the voice service",
+            variant: "destructive",
+          });
+          setIsRecording(false);
         }
       } catch (error) {
         console.error('Error processing WebSocket message:', error);
@@ -56,10 +65,22 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
       console.error('WebSocket error:', error);
       toast({
         title: "Error",
-        description: "Failed to connect to voice service",
+        description: "Failed to connect to voice service. Please try again.",
         variant: "destructive",
       });
       setIsRecording(false);
+    };
+
+    newWs.onclose = () => {
+      console.log('WebSocket connection closed');
+      if (isRecording) {
+        setIsRecording(false);
+        toast({
+          title: "Connection Closed",
+          description: "Voice service connection was closed",
+          variant: "default",
+        });
+      }
     };
 
     setWs(newWs);
@@ -117,7 +138,7 @@ export const ChatInput = ({ input, setInput, handleSendMessage, isLoading }: Cha
       console.error('Error starting recording:', error);
       toast({
         title: "Error",
-        description: "Failed to access microphone",
+        description: "Failed to access microphone. Please ensure microphone permissions are granted.",
         variant: "destructive",
       });
       setIsRecording(false);
