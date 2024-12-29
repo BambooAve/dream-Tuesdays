@@ -37,7 +37,7 @@ export const Hero = () => {
           Get Started
         </Button>
       </div>
-      <AuthDialog isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <AuthDialog isOpen={isAuthOpen} onOpenChange={setIsAuthOpen} />
     </section>
   );
 };

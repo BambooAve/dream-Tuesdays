@@ -145,7 +145,7 @@ export const Navigation = () => {
         </div>
       </nav>
       <FullscreenMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <AuthDialog isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <AuthDialog isOpen={isAuthOpen} onOpenChange={setIsAuthOpen} />
     </>
   );
 };
