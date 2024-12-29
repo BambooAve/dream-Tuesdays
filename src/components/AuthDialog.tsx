@@ -55,6 +55,7 @@ export const AuthDialog = ({
             title: "Account created!",
             description: "Please check your email for verification.",
           });
+          onClose();
         } catch (error: any) {
           // Check if it's a user already exists error
           if (error.message?.includes("User already registered") || 
@@ -75,15 +76,25 @@ export const AuthDialog = ({
             ? { email: identifier, password }
             : { phone: identifier, password }
         );
-        if (error) throw error;
+        
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast({
+              variant: "destructive",
+              title: "Invalid credentials",
+              description: "Please check your email and password.",
+            });
+            return;
+          }
+          throw error;
+        }
 
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
+        onClose();
       }
-      
-      onClose();
     } catch (error: any) {
       console.error("Auth error:", error);
       toast({
