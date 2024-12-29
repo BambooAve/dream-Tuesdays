@@ -28,12 +28,25 @@ export const Navigation = () => {
 
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
+        } = supabase.auth.onAuthStateChange(async (_event, session) => {
           const currentUser = session?.user ?? null;
           setUser(currentUser);
 
           if (currentUser && !isLoggingOut) {
-            navigate("/complete-profile");
+            // Check if profile is complete
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('first_name')
+              .eq('id', currentUser.id)
+              .single();
+
+            // Only redirect to profile completion if profile is incomplete
+            if (!profile?.first_name && location.pathname !== '/complete-profile') {
+              navigate("/complete-profile");
+            } else if (profile?.first_name && location.pathname === '/complete-profile') {
+              // If profile is complete and we're on complete-profile page, redirect to profile
+              navigate("/profile");
+            }
           }
         });
 
@@ -47,7 +60,7 @@ export const Navigation = () => {
     };
 
     initializeAuth();
-  }, [navigate, isLoggingOut]);
+  }, [navigate, isLoggingOut, location.pathname]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
