@@ -1,0 +1,9 @@
+# Static landing page. No build step: overrides the old Vite settings in the Netlify UI.
+[build]
+  command = "echo 'static site, nothing to build'"
+  publish = "site"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
